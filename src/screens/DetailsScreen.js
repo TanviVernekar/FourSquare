@@ -69,7 +69,7 @@ export const DetailsScreen = ({navigation}) => {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity>
+          <TouchableOpacity onPress={()=>navigation.navigate('PhotosScreen')}>
             <View>
               <Image
                 source={require('../assets/images/photo_icon.png')}

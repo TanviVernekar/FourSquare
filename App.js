@@ -10,6 +10,7 @@ import { AboutUsScreen } from './src/screens/AboutUsScreen'
 import { DetailsScreen } from './src/screens/DetailsScreen'
 import { ReviewScreen } from './src/screens/ReviewScreen'
 import {Route} from './src/navigation/Route'
+import { FeedBackScreen } from './src/screens/FeedBackScreen'
 
 
 export default App=()=> {
@@ -25,6 +26,7 @@ export default App=()=> {
     {/* <DetailsScreen/> */}
     {/* <ReviewScreen/> */}
     <Route/>
+    {/* <FeedBackScreen/> */}
     
    </View>
   )

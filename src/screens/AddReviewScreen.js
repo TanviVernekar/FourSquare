@@ -17,7 +17,7 @@ import {
 
 import * as yup from 'yup';
 import axios from 'axios';
-import { Button2 } from '../components/Buttons';
+import { Buttons } from '../components/Buttons';
 import {KeyboardAwareView} from 'react-native-keyboard-aware-view';
 import ImagePicker from 'react-native-image-crop-picker';
 
@@ -138,7 +138,7 @@ export const AddReviewScreen = ({navigation}) => {
                 <View style={styles.addphotosIconView}>
                   <TouchableOpacity onPress={()=>{changeProfileImageFromLibrary()}}>
                     <Image
-                      source={require('../assets/images/aad_photo_icon.png')}
+                      source={require('../assets/images/aad_photo.png')}
                       style={styles.addphotosIcon}
                     />
                   </TouchableOpacity>
@@ -146,8 +146,8 @@ export const AddReviewScreen = ({navigation}) => {
               </View>
             </View>
           </ScrollView>
-          <Button2
-            text={'Submit'}
+          <Buttons
+            text='Submit'
             disable={!text}
             onPress={() => {
               handleSubmit();
@@ -208,13 +208,12 @@ const styles = StyleSheet.create({
     marginRight: 17,
     marginVertical: 10,
     borderRadius:5,
-    overflow:'hidden'
+    overflow:'hidden',
+
   },
   addphotosIcon: {
-    height: 50,
-    width: 50,
-    borderWidth:2,
-    backgroundColor:'pink'
+    height: 70,
+    width: 70,
   },
   buttonView: {
     // flex: 1,

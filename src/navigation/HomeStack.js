@@ -11,6 +11,8 @@ import { SearchScreen } from '../screens/SearchScreen';
 import { FilterScreen } from '../screens/FilterScreen';
 import { AboutUsScreen } from '../screens/AboutUsScreen';
 import { FavouriteScreen } from '../screens/FavouriteScreen';
+import { PhotosScreen } from '../screens/PhotosScreen';
+import { PhotoDisplayScreen } from '../screens/PhotoDisplayScreen';
 
 
 const Stack = createStackNavigator();
@@ -52,6 +54,14 @@ export const HomeStack=()=>{
           cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
         }} />
            <Stack.Screen name="FavouriteScreen" component={FavouriteScreen} options={{
+          headerShown: false,
+          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+        }} />
+         <Stack.Screen name="PhotosScreen" component={PhotosScreen} options={{
+          headerShown: false,
+          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+        }} />
+         <Stack.Screen name="PhotoDisplayScreen" component={PhotoDisplayScreen} options={{
           headerShown: false,
           cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
         }} />
