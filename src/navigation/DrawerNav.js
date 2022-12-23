@@ -1,14 +1,13 @@
 import React from 'react';
 import {Dimensions} from 'react-native';
-import {CourseStack} from './CourseStack';
-import {HomeStack} from './HomeStack';
-import {ProfileStack} from './ProfileStack';
-import {SettingStack} from './SettingStack';
-import {NotificationsScreen} from '../screens/NotificationsScreen';
-import {CustomDrawerComponent} from '../components/CustomDrawerComponents';
+import {CustomDrawerComponent} from '../components/CustomDrawerComponents'
 import Icon from 'react-native-vector-icons/Feather';
 import Icons from 'react-native-vector-icons/Ionicons';
 import { createDrawerNavigator } from '@react-navigation/drawer';
+import { FavouriteScreen } from '../screens/FavouriteScreen';
+import { FeedBackScreen } from '../screens/FeedBackScreen';
+import { AboutUsScreen } from '../screens/AboutUsScreen';
+import { HomeStack } from './HomeStack';
 
 export const Drawer = createDrawerNavigator();
 
@@ -22,7 +21,7 @@ export const DrawerNav = ({navigation}) => {
       }}
       drawerContent={props => <CustomDrawerComponent {...props} />}>
       <Drawer.Screen
-        name="Home"
+        name="HomeStack"
         component={HomeStack}
         options={{
           headerStyle: {
@@ -35,7 +34,7 @@ export const DrawerNav = ({navigation}) => {
           drawerInactiveTintColor: '#373737',
           drawerLabelStyle: {
             fontSize: 16,
-            fontFamily: 'Proxima Nova',
+            // fontFamily: 'Proxima Nova',
             marginLeft: -13,
             height: Platform.OS === 'ios' ? 18 : 22,
             marginTop: Platform.OS === 'ios' ? 5 : 3,
@@ -43,8 +42,29 @@ export const DrawerNav = ({navigation}) => {
         }}
       />
       <Drawer.Screen
-        name="My Course"
-        component={CourseStack}
+        name="FavouriteScreen"
+        component={FavouriteScreen}
+        options={{
+          headerStyle: {
+            height: 80,
+          },
+          headerShown: false,
+          drawerIcon: ({color}) => <Icon name="home" size={20} color={color} />,
+          drawerActiveBackgroundColor: null,
+          drawerActiveTintColor: '#EA2626',
+          drawerInactiveTintColor: '#373737',
+          drawerLabelStyle: {
+            fontSize: 16,
+            // fontFamily: 'Proxima Nova',
+            marginLeft: -13,
+            height: Platform.OS === 'ios' ? 18 : 22,
+            marginTop: Platform.OS === 'ios' ? 5 : 3,
+          },
+        }}
+      />
+      <Drawer.Screen
+        name="FeedBackScreen"
+        component={FeedBackScreen}
         options={{
           headerShown: false,
           drawerIcon: ({color}) => (
@@ -55,7 +75,7 @@ export const DrawerNav = ({navigation}) => {
           drawerInactiveTintColor: '#373737',
           drawerLabelStyle: {
             fontSize: 16,
-            fontFamily: 'Proxima Nova',
+            // fontFamily: 'Proxima Nova',
             marginLeft: -13,
             height: Platform.OS === 'ios' ? 18 : 22,
             marginTop: Platform.OS === 'ios' ? 5 : 3,
@@ -63,8 +83,8 @@ export const DrawerNav = ({navigation}) => {
         }}
       />
       <Drawer.Screen
-        name="My Profile"
-        component={ProfileStack}
+        name="AboutUsScreen"
+        component={AboutUsScreen}
         options={{
           headerShown: false,
           drawerIcon: ({color}) => (
@@ -75,16 +95,16 @@ export const DrawerNav = ({navigation}) => {
           drawerInactiveTintColor: '#373737',
           drawerLabelStyle: {
             fontSize: 16,
-            fontFamily: 'Proxima Nova',
+            // fontFamily: 'Proxima Nova',
             marginLeft: -13,
             height: Platform.OS === 'ios' ? 18 : 22,
             marginTop: Platform.OS === 'ios' ? 5 : 3,
           },
         }}
       />
-      <Drawer.Screen
-        name="Notifications"
-        component={NotificationsScreen}
+      {/* <Drawer.Screen
+        name="Logout"
+        component={Logout}
         options={{
           headerShown: false,
           drawerIcon: ({color}) => <Icon name="bell" size={18} color={color} />,
@@ -99,27 +119,8 @@ export const DrawerNav = ({navigation}) => {
             marginTop: Platform.OS === 'ios' ? 5 : 3,
           },
         }}
-      />
-      <Drawer.Screen
-        name="Settings"
-        component={SettingStack}
-        options={{
-          headerShown: false,
-          drawerIcon: ({color}) => (
-            <Icon name="settings" size={18} color={color} />
-          ),
-          drawerActiveBackgroundColor: null,
-          drawerActiveTintColor: '#EA2626',
-          drawerInactiveTintColor: '#373737',
-          drawerLabelStyle: {
-            fontSize: 16,
-            fontFamily: 'Proxima Nova',
-            marginLeft: -13,
-            height: Platform.OS === 'ios' ? 18 : 22,
-            marginTop: Platform.OS === 'ios' ? 5 : 3,
-          },
-        }}
-      />
+      /> */}
+   
     </Drawer.Navigator>
   );
 };

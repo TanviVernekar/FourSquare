@@ -8,6 +8,7 @@ import {
   Platform,
   TouchableOpacity,
   StatusBar,
+
 } from 'react-native';
 import {Formik} from 'formik';
 import * as yup from 'yup';
@@ -15,6 +16,7 @@ import axios from 'axios';
 import {TextField} from 'rn-material-ui-textfield';
 import {Buttons} from '../components/Buttons';
 import {ScrollView} from 'react-native-gesture-handler';
+import Toast from 'react-native-simple-toast'
 
 export const SignUp = ({navigation}) => {
   const signUpValidationScheme = yup.object().shape({
@@ -61,13 +63,37 @@ export const SignUp = ({navigation}) => {
                 username: '',
                 password: '',
               }}
-              onSubmit={values => {
+              onSubmit={ async values => {
                 const obj = {
                   email: values.email,
                   mobileno:values.mobileno,
                   password: values.password,
                   confirmpassword:values.confirmpassword
                 };
+
+                
+                try {
+                  const response = await axios.post(
+                    'https://new-project-henna.vercel.app/api/user',
+                    obj,
+                  );
+                  console.log(response)
+                  
+                  navigation.navigate('SignIn');
+                  console.log('created')
+                  // if (
+                  //   response.data.message === 'Password Changed Successfully'
+                  // ) {
+                  //   navigation.navigate('Password Changed Successfully');
+                  // }
+                } catch (error) {
+                  // Toast.show(error,Toast.SHORT)
+                   console.log(error.response.data.message);
+                   if(error.response.data.message=='User with this email already present')
+                   {
+                    Toast.show('User with this email already present',Toast.SHORT)
+                   }
+                }
               }}>
               {({
                 handleChange,
@@ -287,7 +313,7 @@ export const SignUp = ({navigation}) => {
                       </Text>
                     )}
                   </View>
-                  <Buttons text='Login' onPress={()=> navigation.navigate('SignIn')} disable={!isValid}/>
+                  <Buttons text='Login' onPress={()=>{handleSubmit()}} disable={!isValid}/>
                 </>
               )}
             </Formik>

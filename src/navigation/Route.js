@@ -17,14 +17,11 @@ export const Route=()=>{
           headerShown: false,
           cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
         }} />
-         <Stack.Screen name="HomeStack" component={HomeStack} options={{
+       
+           <Stack.Screen name="DrawerNav" component={DrawerNav} options={{
           headerShown: false,
           cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
         }} />
-           {/* <Stack.Screen name="DrawerNav" component={DrawerNav} options={{
-          headerShown: false,
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-        }} /> */}
       </Stack.Navigator>
     </NavigationContainer>
   );

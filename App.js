@@ -11,6 +11,7 @@ import { DetailsScreen } from './src/screens/DetailsScreen'
 import { ReviewScreen } from './src/screens/ReviewScreen'
 import {Route} from './src/navigation/Route'
 import { FeedBackScreen } from './src/screens/FeedBackScreen'
+import { FavouriteScreen } from './src/screens/FavouriteScreen'
 
 
 export default App=()=> {
@@ -27,6 +28,7 @@ export default App=()=> {
     {/* <ReviewScreen/> */}
     <Route/>
     {/* <FeedBackScreen/> */}
+    {/* <FavouriteScreen/> */}
     
    </View>
   )

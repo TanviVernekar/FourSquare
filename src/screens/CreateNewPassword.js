@@ -13,10 +13,10 @@ import {Formik} from 'formik';
 import * as yup from 'yup';
 import axios from 'axios';
 import {TextField} from 'rn-material-ui-textfield';
-import Buttons from '../components/Buttons';
+import {Buttons} from '../components/Buttons';
 import {ScrollView} from 'react-native-gesture-handler';
 
-export const CreateNewPassword = () => {
+export const CreateNewPassword = ({navigation}) => {
   const SignInValidationScheme = yup.object().shape({
     password: yup
       .string()
@@ -179,7 +179,7 @@ export const CreateNewPassword = () => {
                     )}
                     <TouchableOpacity></TouchableOpacity>
                   </View>
-                  <Buttons text="Submit" />
+                  <Buttons text="Submit" onPress={()=>navigation.navigate('HomeStack')}/>
                 </>
               )}
             </Formik>

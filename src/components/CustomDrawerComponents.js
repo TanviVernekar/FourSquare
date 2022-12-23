@@ -9,36 +9,39 @@ import {
   Pressable,
   Alert,
   Platform,
+  TouchableOpacity,
 } from 'react-native';
 import {
   DrawerContentScrollView,
+  DrawerItem,
   DrawerItemList,
 } from '@react-navigation/drawer';
 import {useSelector, useDispatch} from 'react-redux';
 import {setToken} from '../redux/ReduxPersist/UserDetails';
 import {useIsFocused} from '@react-navigation/native';
 import {drawerDataApiCall} from '../redux/ThunkToolkit/DrawerDataApi/DrawerData';
+import { color } from 'react-native-reanimated';
 
 export const CustomDrawerComponent = props => {
 //   const token = useSelector(state => state.userDetails.token);
 //   const dispatch = useDispatch();
 //   const data = useSelector(state => state.drawerData.data);
-//   const log = () => {
-//     props.navigation.goBack();
-//     Alert.alert('', 'Are you sure want to Logout?', [
-//       {
-//         text: 'Cancel',
-//         onPress: () => {},
-//       },
-//       {
-//         text: 'Logout',
-//         onPress: () => {
-//           dispatch(setToken(null));
-//         },
-//       },
-//     ]);
-//   };
-//   const focus = useIsFocused();
+  // const log = () => {
+  //   props.navigation.goBack();
+  //   Alert.alert('', 'Are you sure want to Logout?', [
+  //     {
+  //       text: 'Cancel',
+  //       onPress: () => {},
+  //     },
+  //     {
+  //       text: 'Logout',
+  //       // onPress: () => {
+  //       //   dispatch(setToken(null));
+  //       // },
+  //     },
+  //   ]);
+  // };
+  // const focus = useIsFocused();
 
 //   useLayoutEffect(() => {
 //     dispatch(drawerDataApiCall(token));
@@ -47,147 +50,84 @@ export const CustomDrawerComponent = props => {
 
 
   return (
-    <View style={{flex: 1, marginTop: Platform.OS === 'ios' ? -52 : -4}}>
+    <View style={{flex: 1}}>
       <DrawerContentScrollView {...props}>
-        <ImageBackground
-        //   source={{uri: data?.profilePhoto}}
-          style={styles.backgroundimg}>
-          <View style={styles.backgroundImgBlur}>
-            <View style={styles.topinfo}>
-              <Image
-                // source={{uri: data?.profilePhoto}}
-                style={styles.imgprofile}
-              />
-              <View style={styles.topinfotext}>
-                <Text style={styles.textname}>dwdvw</Text>
-                <Text style={styles.textdesc}>efwdv</Text>
-              </View>
-            </View>
+        <ImageBackground source={require('../assets/images/sidemenu_background.png')} resizeMode='cover' style={{flex:1,height:800,marginTop:-5}}>
+          <View style={{justifyContent:'center',alignItems:'center',marginTop:40}}>
+
+        <Image source={require('../assets/images/profiledummy.png')} style={styles.image}/>
+        <Text style={styles.name}>Swaroop Kumar</Text>
           </View>
+
+          <View style={{marginTop:35}}>
+
+            <TouchableOpacity>
+            <View style={{flexDirection:'row',margin:20,marginLeft:40,marginBottom:30}}>
+              <Image source={require('../assets/images/favourite_icon_unselected.png')} style={styles.menuimg}/>
+              <Text style={styles.menutext}>Favourites</Text>
+            </View>
+            </TouchableOpacity>
+            <View style={{borderWidth:0.3,borderColor:'grey',marginHorizontal:25,marginBottom:10}}/>
+
+
+
+
+            <TouchableOpacity>
+            <View style={{flexDirection:'row',margin:20,marginLeft:40,marginTop:25,marginBottom:30}}>
+              <Image source={require('../assets/images/feedback.png')} style={styles.menuimg}/>
+              <Text style={styles.menutext}>FeedBack</Text>
+            </View>
+            </TouchableOpacity>
+            <View style={{borderWidth:0.3,borderColor:'grey',marginHorizontal:25,marginBottom:10}}/>
+
+
+            <TouchableOpacity>
+            <View style={{flexDirection:'row',margin:20,marginLeft:40,marginTop:25,marginBottom:30}}>
+              <Image source={require('../assets/images/about.png')} style={styles.menuimg}/>
+              <Text style={styles.menutext}>About us</Text>
+            </View>
+            </TouchableOpacity>
+            <View style={{borderWidth:0.3,borderColor:'grey',marginHorizontal:25,marginBottom:10}}/>
+
+
+            <TouchableOpacity>
+            <View style={{flexDirection:'row',margin:20,marginLeft:40,marginTop:25,marginBottom:30}}>
+              <Image source={require('../assets/images/logout.png')} style={styles.menuimg}/>
+              <Text style={styles.menutext}>Logout</Text>
+            </View>
+            </TouchableOpacity>
+            <View style={{borderWidth:0.3,borderColor:'grey',marginHorizontal:25,marginBottom:10}}/>
+          </View>
+
+           
         </ImageBackground>
-        <DrawerItemList {...props} />
-        {/* {data?.notificationCount > 0 ? (
-          <>
-            <View style={styles.notify}>
-              <Text style={styles.notifyText}>{data?.notificationCount}</Text>
-            </View>
-            <Pressable style={{marginTop: 95}} onPress={log}>
-              <View style={styles.ViewText}>
-                <Image
-                  source={require('../assets/images/icn_logout_menu.png')}
-                  style={{
-                    height: 16,
-                    width: 15,
-                    marginBottom: 0,
-                    tintColor: 'black',
-                  }}
-                />
-                <Text style={styles.textlog}>Logout</Text>
-              </View>
-            </Pressable>
-          </>
-        ) : (
-          <Pressable style={{marginTop: 20}} onPress={log}>
-            <View style={styles.ViewText}>
-              <Image
-                source={require('../assets/images/icn_logout_menu.png')}
-                style={{
-                  height: 16,
-                  width: 15,
-                  marginBottom: 0,
-                  tintColor: 'black',
-                }}
-              />
-              <Text style={styles.textlog}>Logout</Text>
-            </View>
-          </Pressable>
-        )} */}
+        
       </DrawerContentScrollView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  backgroundimg: {
-    height: 188,
-    marginBottom: 30,
-  },
-  backgroundImgBlur: {
-    backgroundColor: '#042C5C',
-    opacity: 0.9,
-    height: 188,
-  },
-  topinfo: {
-    flexDirection: 'row',
-    marginHorizontal: 20,
-    marginTop: 80,
-  },
-  topinfotext: {
-    marginLeft: 15,
-  },
-  viewinfo: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginHorizontal: 24,
-    marginTop: 25,
-  },
-  viewpass: {
-    height: 56,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginHorizontal: 24,
-    marginVertical: 30,
-    backgroundColor: '#FEFEFF',
-    shadowOpacity: 0.1,
-    borderRadius: 6,
-  },
-  ViewText: {
-    marginLeft: 20,
-    flexDirection: 'row',
-  },
-  textname: {
-    color: '#FFFFFF',
-    fontWeight: Platform.OS == 'ios' ? 'bold' : 'normal',
-    fontFamily: Platform.OS == 'ios' ? 'Biko' : 'Biko_Bold',
-    fontSize: 16,
-    marginTop: 15,
-    textAlign: 'left',
-  },
-  textdesc: {
-    color: '#FFFFFF',
-    fontFamily: Platform.OS === 'ios' ? 'Proxima Nova' : 'proximanova-semibold',
-    fontWeight: Platform.OS == 'ios' ? 'bold' : 'normal',
-    fontSize: 12,
-    marginTop: 10,
-  },
-  textlog: {
-    color: '#373737',
-    fontFamily: Platform.OS === 'ios' ? 'Proxima Nova' : 'ProximaNova-Regular',
-    fontWeight: Platform.OS == 'ios' ? 'bold' : '500',
-    fontSize: 16,
-    marginLeft: 21,
-    marginTop: Platform.OS === 'ios' ? 1 : -3,
-  },
-  notifyText: {
-    color: '#FFFFFF',
-    fontFamily: Platform.OS === 'ios' ? 'Proxima Nova' : 'proximanova-semibold',
-    fontWeight: Platform.OS == 'ios' ? 'bold' : 'normal',
-    fontSize: 12,
-    textAlign: 'center',
-    marginTop: Platform.OS === 'ios' ? 4 : 1,
-  },
-  notify: {
-    height: 19,
-    width: 28,
-    borderRadius: 15,
-    backgroundColor: '#E83F3F',
-    marginLeft: 165,
-    marginTop: Platform.OS === 'ios' ? -95 : -95,
-  },
-  imgprofile: {
-    height: 58,
-    width: 58,
-    marginTop: 5,
-    borderRadius: 6,
-  },
+ image:{
+  height:90,
+  width:90,
+  borderRadius:50
+ },
+ name:{
+  fontFamily:'Avenir Book',
+  color:'white',
+  fontSize:18,
+  marginTop:5
+ },
+ menuimg:{
+  height:20,
+  width:24,
+  alignSelf:'center'
+ },
+ menutext:{
+  fontFamily:'Avenir Medium',
+  fontSize:18,
+  color:'white',
+  marginLeft:12
+ }
 });

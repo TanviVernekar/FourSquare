@@ -11,6 +11,7 @@ import {ScrollView} from 'react-native-gesture-handler';
 import {TopTabsStack} from '../navigation/TopTabsStack';
 import { MapScreen } from './MapScreen';
 
+
 export const HomeScreen = ({navigation}) => {
   return (
     <View style={styles.mainContainer}>
@@ -26,7 +27,7 @@ export const HomeScreen = ({navigation}) => {
           
           <View style={styles.topHeader2}>
           
-            <TouchableOpacity >
+            <TouchableOpacity onPress={() => navigation.openDrawer()}>
               <Image
                 source={require('../assets/images/menu.png')}
                 style={styles.menu}
