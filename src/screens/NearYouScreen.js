@@ -1,6 +1,6 @@
 import React from 'react'
-import { View,StyleSheet,Text,Image} from 'react-native'
-import { ScrollView } from 'react-native-gesture-handler'
+import { View,StyleSheet,Text,Image,ScrollView} from 'react-native'
+
 import { ListComponent } from '../components/ListComponent'
 import { MapScreen } from './MapScreen';
 

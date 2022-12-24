@@ -9,6 +9,8 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 export const VerificationScreen=({navigation})=> {
 
+
+  
   return (
     <View style={styles.mainContainer}>
     <StatusBar barStyle = "dark-content" hidden = {false} backgroundColor = "transparent" translucent = {true}/>
@@ -67,7 +69,7 @@ export const VerificationScreen=({navigation})=> {
           />
         <Text style={styles.resendtext}>Resend OTP</Text>
       
-        <Buttons text='Get In !' onPress={()=> navigation.navigate('CreateNewPassword')}/>
+        <Buttons text='Get In !' onPress={()=>navigation.navigate('SignIn')}/>
       
        </ScrollView>
        </View>

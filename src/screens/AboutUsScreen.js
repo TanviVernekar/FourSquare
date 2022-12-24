@@ -3,7 +3,7 @@ import {View, StyleSheet, StatusBar, Image, Text, Platform, TouchableOpacity} fr
 import { ScrollView } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/SimpleLineIcons'
 
-export const AboutUsScreen = () => {
+export const AboutUsScreen = ({navigation}) => {
   return (
     <View style={styles.container}>
       <StatusBar
@@ -15,15 +15,15 @@ export const AboutUsScreen = () => {
 
       
       <View style={styles.header}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={()=>{navigation.openDrawer()}}>
         <Image
           source={require('../assets/images/back.png')}
           style={styles.back}
         />
-        </TouchableOpacity>
+        </TouchableOpacity >
      
             <Text style={styles.text}>About us</Text>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={()=>{navigation.navigate('HomeScreen')}}>
         <Icon name='home' size={25} style={{alignSelf:'center',marginRight:20,color:'white', marginTop: Platform.OS === 'ios' ? 55 :40}}/>
         </TouchableOpacity>
       </View>

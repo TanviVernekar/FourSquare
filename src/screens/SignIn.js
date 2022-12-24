@@ -16,6 +16,11 @@ import axios from 'axios';
 import {TextField} from 'rn-material-ui-textfield';
 import {Buttons} from '../components/Buttons';
 import Toast from 'react-native-simple-toast'
+import { setToken } from '../redux/ReduxPersist/UserDetails';
+import { useDispatch } from 'react-redux';
+import { useRoute } from '@react-navigation/native';
+
+
 
 export const SignIn = ({navigation}) => {
   const signInValidationScheme = yup.object().shape({
@@ -28,6 +33,35 @@ export const SignIn = ({navigation}) => {
       .min(6, ({min}) => `Password must be at least ${min} characters`)
       .required(''),
   });
+
+  const dispatch= useDispatch()
+  const route=useRoute();
+  const handleProcess = async () => {
+    const obj = {
+     email:route.params.email
+    };
+    console.log("weuhfwh")
+    
+      try {
+        const response = await axios.get(
+          'https://new-project-henna.vercel.app/api/otp?email=${obj}',
+        );
+        console.log('forgot pwd', response.data);
+        Toast.show(response.data.message, Toast.SHORT);
+        navigation.navigate('VerificationScreen',)
+        // if (response.data.message === 'OTP Valid For 2 Minutes') {
+        //   // navigation.navigate('Verification', {obj});
+        //   setShowError(false);
+        //   setText('');
+        // } else {
+        //   setShowError(true);
+        // }
+      } catch (error) {
+        console.log(error.response.data);
+        // setShowError(true);
+      }
+  
+  };
   return (
     <View style={styles.mainContainer}>
       <StatusBar
@@ -85,8 +119,11 @@ export const SignIn = ({navigation}) => {
                   // } else {
                   //   setWarning(true);
                   // }
-                  console.log(response)
+                 console.log(response)
                   if(response){
+                    console.log("///",response.headers.authorization)
+                    const token = response.headers.authorization
+                    dispatch(setToken(token))
                     navigation.navigate('DrawerNav')
                     console.log('logged in')
                   }
@@ -214,7 +251,7 @@ export const SignIn = ({navigation}) => {
                       </Text>
                     )}
                     <TouchableOpacity
-                      onPress={() => navigation.navigate('VerificationScreen')}>
+                      onPress={() => {handleProcess()}}>
                       <Text style={styles.fgttext}>Forgot Password?</Text>
                     </TouchableOpacity>
                   </View>

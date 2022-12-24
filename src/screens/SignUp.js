@@ -17,6 +17,8 @@ import {TextField} from 'rn-material-ui-textfield';
 import {Buttons} from '../components/Buttons';
 import {ScrollView} from 'react-native-gesture-handler';
 import Toast from 'react-native-simple-toast'
+import { useDispatch } from 'react-redux';
+import { setToken } from '../redux/ReduxPersist/UserDetails';
 
 export const SignUp = ({navigation}) => {
   const signUpValidationScheme = yup.object().shape({
@@ -37,6 +39,11 @@ export const SignUp = ({navigation}) => {
       .oneOf([yup.ref('password')], 'Password do not match')
       .required(''),
   });
+
+
+
+  const dispatch=useDispatch()
+
   return (
     <View style={styles.mainContainer}>
       <StatusBar
@@ -77,15 +84,11 @@ export const SignUp = ({navigation}) => {
                     'https://new-project-henna.vercel.app/api/user',
                     obj,
                   );
-                  console.log(response)
-                  
+             
+                  const token=response.headers.authorization
+                  dispatch(setToken(token))
                   navigation.navigate('SignIn');
-                  console.log('created')
-                  // if (
-                  //   response.data.message === 'Password Changed Successfully'
-                  // ) {
-                  //   navigation.navigate('Password Changed Successfully');
-                  // }
+            
                 } catch (error) {
                   // Toast.show(error,Toast.SHORT)
                    console.log(error.response.data.message);

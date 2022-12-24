@@ -41,7 +41,7 @@ export const ListComponent=({navigation})=> {
         <View style={{flexDirection:"row"}}>
 
             <Text style={styles.text}>Indian </Text>
-            <Text style={styles.text}>.₹₹₹₹ </Text>
+            <Text style={styles.text}>•₹₹₹₹ </Text>
             <Text style={styles.text}>6.7km</Text>
         </View>
         <Text style={styles.text}>Tiger Circle Manipal </Text>

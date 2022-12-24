@@ -22,7 +22,7 @@ import {useIsFocused} from '@react-navigation/native';
 import {drawerDataApiCall} from '../redux/ThunkToolkit/DrawerDataApi/DrawerData';
 import { color } from 'react-native-reanimated';
 
-export const CustomDrawerComponent = props => {
+export const CustomDrawerComponent = (props,navigation) => {
 //   const token = useSelector(state => state.userDetails.token);
 //   const dispatch = useDispatch();
 //   const data = useSelector(state => state.drawerData.data);
@@ -61,7 +61,7 @@ export const CustomDrawerComponent = props => {
 
           <View style={{marginTop:35}}>
 
-            <TouchableOpacity>
+            <TouchableOpacity onPress={()=>{props.navigation.navigate('FavouriteScreen')}}>
             <View style={{flexDirection:'row',margin:20,marginLeft:40,marginBottom:30}}>
               <Image source={require('../assets/images/favourite_icon_unselected.png')} style={styles.menuimg}/>
               <Text style={styles.menutext}>Favourites</Text>
@@ -72,7 +72,7 @@ export const CustomDrawerComponent = props => {
 
 
 
-            <TouchableOpacity>
+            <TouchableOpacity onPress={()=>{props.navigation.navigate('FeedBackScreen')}}>
             <View style={{flexDirection:'row',margin:20,marginLeft:40,marginTop:25,marginBottom:30}}>
               <Image source={require('../assets/images/feedback.png')} style={styles.menuimg}/>
               <Text style={styles.menutext}>FeedBack</Text>
@@ -81,7 +81,7 @@ export const CustomDrawerComponent = props => {
             <View style={{borderWidth:0.3,borderColor:'grey',marginHorizontal:25,marginBottom:10}}/>
 
 
-            <TouchableOpacity>
+            <TouchableOpacity onPress={()=>{props.navigation.navigate('AboutUsScreen')}}>
             <View style={{flexDirection:'row',margin:20,marginLeft:40,marginTop:25,marginBottom:30}}>
               <Image source={require('../assets/images/about.png')} style={styles.menuimg}/>
               <Text style={styles.menutext}>About us</Text>

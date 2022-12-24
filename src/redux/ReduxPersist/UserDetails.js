@@ -10,6 +10,7 @@ export const UserDetailsSlice = createSlice({
   reducers: {
     setToken: (state, action) => {
       state.token = action.payload;
+      console.log("+++++",state.token)
     },
     setUserData: (state, action) => {
       state.userData = action.payload;
