@@ -8,7 +8,6 @@ import MapView, {Marker} from 'react-native-maps';
 
 export const MapScreen = () => {
   return (
-    <SafeAreaView style={{flex: 1}}>
       <View style={styles.container}>
         <MapView
           style={styles.mapStyle}
@@ -33,7 +32,6 @@ export const MapScreen = () => {
           />
         </MapView>
       </View>
-    </SafeAreaView>
   );
 };
 
@@ -129,6 +127,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     alignItems: 'center',
     justifyContent: 'flex-end',
+  
   },
   mapStyle: {
     position: 'absolute',

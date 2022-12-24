@@ -15,7 +15,8 @@ import {
 
 import {Buttons} from '../components/Buttons';
 import {ListComponent} from '../components/ListComponent';
-import {MapScreen} from './MapScreen';
+import {MapScreen} from '../screens/MapScreen';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const data = [
   {
@@ -63,8 +64,30 @@ export const SearchScreen = ({navigation}) => {
   const [nearyouText, setNearyoutext] = useState(null);
 
   const [mapclick, setMapclick] = useState(false);
+  const [mapnear, setMapnear] = useState(false);
 
   const [filter, setFilter] = useState(false);
+
+  const [clicked1, setClicked1] = useState(false);
+  const [clicked2, setClicked2] = useState(false);
+  const [clicked3, setClicked3] = useState(false);
+
+  const [radius, setRadius] = useState();
+  const [changeRadius, setChangeRadius] = useState(null);
+
+  const [rupeeone, setRupeeone] = useState(false);
+  const [rupeetwo, setRupeetwo] = useState(false);
+  const [rupeethree, setRupeethree] = useState(false);
+  const [rupeefour, setRupeefour] = useState(false);
+
+  const [credit, setCredit] = useState(false);
+  const [delivery, setDelivery] = useState(false);
+  const [animal, setAnimal] = useState(false);
+  const [family, setFamily] = useState(false);
+  const [walk, setWalk] = useState(false);
+  const [outdoor, setOutdoor] = useState(false);
+  const [park, setPark] = useState(false);
+  const [wifi, setWifi] = useState(false);
 
   return (
     <View style={styles.mainContainer}>
@@ -73,7 +96,8 @@ export const SearchScreen = ({navigation}) => {
         hidden={false}
         backgroundColor="#310D20"
       />
-      <ScrollView>
+
+      <View>
         <View style={styles.header}>
           <View
             style={{
@@ -82,7 +106,10 @@ export const SearchScreen = ({navigation}) => {
               justifyContent: 'space-between',
               marginHorizontal: 20,
             }}>
-            <TouchableOpacity onPress={()=>{navigation.goBack()}}>
+            <TouchableOpacity
+              onPress={() => {
+                navigation.goBack();
+              }}>
               <Image
                 source={require('../assets/images/back.png')}
                 style={styles.back}
@@ -101,32 +128,56 @@ export const SearchScreen = ({navigation}) => {
                   placeholder="Search"
                   value={text}
                   onChangeText={text => {
-                    // setChangeText(text);
                     setSearchText(text);
                     setSearch(true);
                     setNearyou(false);
                     setNearyoutext(false);
+                    setFilter(false);
                   }}
                   placeholderTextColor="#CACACA"
                   onFocus={() => {
                     setSearch(true);
                     setNearyou(false);
                     setNearyoutext('');
+                    setFilter(false);
                   }}
                   style={styles.text}></TextInput>
               </View>
             </View>
 
-            <TouchableOpacity onPress={() => setFilter(!filter)}>
-              {!filter ? (
+            {filter === false ? (
+              <TouchableOpacity
+                onPress={() => {
+                  setFilter(true);
+                  setSearch(false);
+                  setNearyou(false);
+                  setSearchText(false);
+                  setNearyoutext(false);
+                  setMapclick(false);
+                  setMapnear(false);
+                }}>
                 <Image
                   source={require('../assets/images/filter.png')}
                   style={styles.filter}
                 />
-              ) : (
-                <Text>Done</Text>
-              )}
-            </TouchableOpacity>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={{marginLeft: -14, alignSelf: 'center'}}
+                onPress={() => {
+                  setFilter(false);
+                  setSearch(false);
+                  setNearyou(false);
+                  setSearchText(false);
+                  setNearyoutext(false);
+                  setMapclick(false);
+                  setMapnear(false);
+                }}>
+                <Text style={{fontSize: 14, color: 'white', height: 30}}>
+                  Done
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
           <View style={{marginHorizontal: 20}}>
             <View
@@ -151,25 +202,29 @@ export const SearchScreen = ({navigation}) => {
                     setSearch(false);
                     setNearyou(true);
                     setNearyoutext(text);
+                    setFilter(false);
                   }}
                   placeholderTextColor="#CACACA"
                   onFocus={() => {
                     setNearyou(true);
                     setSearch(false);
+                    setFilter(false);
                   }}
                   style={styles.text}></TextInput>
               </View>
             </View>
           </View>
         </View>
-        <View style={{backgroundColor: '#CACACA', flex: 1}}>
-          {search ? (
+      </View>
+
+      {/* <View style={{backgroundColor: '#CACACA', marginTop: 10,borderWidth:1}}> */}
+      {search ? (
+        <>
+          {searchText ? (
             <>
-              {searchText ? (
+              <View style={{flex: 1}}>
                 <View>
-                  {/* {mapclick?():()} */}
-                  <View>
-                    {/* should be mapped */}
+                  <ScrollView>
                     {listdata.map(item => (
                       <TouchableOpacity
                         onPress={() => {
@@ -217,66 +272,77 @@ export const SearchScreen = ({navigation}) => {
                         </View>
                       </TouchableOpacity>
                     ))}
-                  </View>
-                  <TouchableOpacity
-                    onPress={() => {
-                      setMapclick(true);
-                      setSearchText(false);
-                      setSearch(false);
-                      setNearyou(false);
-                      setNearyoutext(false)
-                    }}>
-                    <View style={styles.button}>
-                      <Text style={styles.btntext}>Map view</Text>
-                    </View>
-                  </TouchableOpacity>
+                  </ScrollView>
                 </View>
-              ) : (
-                <>
-                  <View>
-                    <View>
-                      <View style={styles.searchheader}>
-                        <Text style={styles.searchtext}>Near by places</Text>
-                      </View>
 
-                      {data.map(item => (
-                        <TouchableOpacity>
-                          <View style={styles.placeview} key={item.id}>
-                            <Image
-                              source={require('../assets/images/hotel.png')}
-                              style={styles.placeimg}
-                            />
-                            <Text style={styles.placetext}>{item.place}</Text>
-                          </View>
-                        </TouchableOpacity>
-                      ))}
-                    </View>
+                {/* <View style={{alignItems:'flex-end'}}> */}
 
-                    <View>
-                      <View style={styles.searchheader}>
-                        <Text style={styles.searchtext}>Suggestions</Text>
-                      </View>
-
-                      {data.map(item => (
-                        <TouchableOpacity>
-                          <View style={styles.placeview2} key={item.id}>
-                            <Text style={styles.placetext2}>{item.place}</Text>
-                          </View>
-                        </TouchableOpacity>
-                      ))}
-                    </View>
-                  </View>
-                </>
-              )}
+                <TouchableOpacity
+                  style={styles.buttonnew}
+                  onPress={() => {
+                    setMapclick(true);
+                    setSearchText(false);
+                    setSearch(false);
+                    setNearyou(false);
+                    setNearyoutext(false);
+                  }}>
+                  <Text style={styles.btntext}>Map view</Text>
+                </TouchableOpacity>
+              </View>
+              {/* </View> */}
             </>
           ) : (
-            <></>
-          )}
-
-          {nearyou ? (
             <>
-              {nearyouText ? (
-                <View>
+              <View style={{flex: 1}}>
+                <ScrollView>
+                  <View>
+                    <View style={styles.searchheader}>
+                      <Text style={styles.searchtext}>Near by places</Text>
+                    </View>
+
+                    {data.map(item => (
+                      <TouchableOpacity>
+                        <View style={styles.placeview} key={item.id}>
+                          <Image
+                            source={require('../assets/images/hotel.png')}
+                            style={styles.placeimg}
+                          />
+                          <Text style={styles.placetext}>{item.place}</Text>
+                        </View>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+
+                  <View>
+                    <View style={styles.searchheader}>
+                      <Text style={styles.searchtext}>Suggestions</Text>
+                    </View>
+
+                    {data.map(item => (
+                      <TouchableOpacity>
+                        <View style={styles.placeview2} key={item.id}>
+                          <Text style={styles.placetext2}>{item.place}</Text>
+                        </View>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </ScrollView>
+              </View>
+            </>
+          )}
+        </>
+      ) : (
+        <></>
+      )}
+      {/* </View> */}
+
+      {/* <View style={{backgroundColor: '#CACACA', flex: 1}}> */}
+      {nearyou ? (
+        <>
+          {nearyouText ? (
+            <View style={{flex: 1}}>
+              <View>
+                <ScrollView>
                   {/* should be mapped */}
                   <TouchableOpacity
                     onPress={() => {
@@ -323,146 +389,592 @@ export const SearchScreen = ({navigation}) => {
                       </View>
                     </View>
                   </TouchableOpacity>
-                  {/* <TouchableOpacity
-                    onPress={() => {
-                      setMapclick(true);
-                      setNearyoutext(false);
-                      setNearyou(false);
-                    }}>
-                    <View style={styles.button}>
-                      <Text style={styles.btntext}>Map view</Text>
-                    </View>
-                  </TouchableOpacity> */}
-                </View>
-               
-              ) : (
-                <>
-                  <View>
-                    <TouchableOpacity>
-                      <View style={styles.placeview}>
-                        <Image
-                          source={require('../assets/images/location_icon.png')}
-                          style={styles.locimg}
-                        />
-                        <Text style={styles.loctext}>
-                          Use my current location
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity>
-                      <View style={styles.placeview}>
-                        <Image
-                          source={require('../assets/images/map_icon.png')}
-                          style={styles.locimg}
-                        />
-                        <Text style={styles.loctext}>
-                          Select Search area on map
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                  </View>
-                </>
-              )}
-                  <TouchableOpacity
-                    onPress={() => {
-                      setMapclick(true);
-                      setNearyoutext(false);
-                      setNearyou(false);
-                    }}>
-                    <View style={styles.button}>
-                      <Text style={styles.btntext}>Map view</Text>
-                    </View>
-                  </TouchableOpacity>
-            </>
-          ) : (
-            <></>
-          )}
-
-          {/*       
-        {!filter ?(
-           <View>
-           <Text>filter</Text>
-         </View> 
-        ):(
-          <></>
-        )} */}
-        </View>
-        <View style={{flex: 1, height: 650, marginHorizontal:0.1}}>
-          {mapclick == true && searchText == false && search==false &&  nearyou ==false && nearyouText== false  ? (
-            <View>
-              <View style={{width: '100%', height: 573}}>
-                <MapScreen/>
-                <View style={{width:"100%",borderWidth:1}}>
-                    {/* should be mapped */}
-                    <FlatList
-                    data={listdata}
-                    horizontal={true}
-                    renderItem={({item})=>(
-                      <TouchableOpacity
-                      onPress={() => {
-                        navigation.navigate('DetailsScreen');
-                      }}>
-                      <View style={styles.listContainer2}>
-                        <Image
-                          source={require('../assets/images/hotel.png')}
-                          style={styles.image}
-                          resizeMode="cover"
-                        />
-                        <View style={{marginLeft: 12}}>
-                          <Text style={styles.name}>{item.name}</Text>
-                          <View style={styles.rating}>
-                            <Text
-                              style={{
-                                fontSize: 14,
-                                color: 'white',
-                                fontFamily: 'Avenir Book',
-                              }}>
-                              6.5
-                            </Text>
-                          </View>
-                          <View style={{flexDirection: 'row'}}>
-                            <Text style={styles.text}>{item.type} </Text>
-                            <Text style={styles.text}>•₹₹₹₹ </Text>
-                            <Text style={styles.text}>6.7km</Text>
-                          </View>
-                          <Text style={styles.text}>{item.address}</Text>
-                        </View>
-                        <View
-                          style={{
-                            position: 'absolute',
-                            top: 7,
-                            flexDirection: 'row',
-                            right: 10,
-                          }}>
-                          <TouchableOpacity>
-                            <Image
-                              source={require('../assets/images/favourite_star.png')}
-                              style={{height: 20, width: 20}}
-                            />
-                          </TouchableOpacity>
-                        </View>
-                      </View>
-                    </TouchableOpacity>
-                    )}
-                    />
-                  </View>
-              
+                </ScrollView>
               </View>
+
               <TouchableOpacity
+                style={styles.buttonnew}
                 onPress={() => {
-                  setSearchText(true);
-                  setSearch(true)
+                  setMapnear(true);
+                  setNearyoutext(false);
+                  setNearyou(false);
                 }}>
-                <View style={styles.button2}>
-                  <Text style={styles.btntext2}>List view</Text>
-                </View>
+                <Text style={styles.btntext}>Map view</Text>
               </TouchableOpacity>
             </View>
           ) : (
-            <></>
+            <>
+              <View>
+                <TouchableOpacity>
+                  <View style={styles.placeview}>
+                    <Image
+                      source={require('../assets/images/location_icon.png')}
+                      style={styles.locimg}
+                    />
+                    <Text style={styles.loctext}>Use my current location</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <View style={styles.placeview}>
+                    <Image
+                      source={require('../assets/images/map_icon.png')}
+                      style={styles.locimg}
+                    />
+                    <Text style={styles.loctext}>
+                      Select Search area on map
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </>
           )}
+        </>
+      ) : (
+        <></>
+      )}
+
+      {/* <View style={{fheight: 650, marginHorizontal:0.1}}> */}
+      {mapclick == true &&
+      searchText == false &&
+      search == false &&
+      nearyou == false &&
+      nearyouText == false ? (
+        <View style={{flex: 1}}>
+          {/* <View > */}
+
+          <MapScreen />
+
+          <View style={{margin: 7}}>
+            <FlatList
+              data={listdata}
+              horizontal={true}
+              renderItem={({item}) => (
+                <TouchableOpacity
+                  onPress={() => {
+                    navigation.navigate('DetailsScreen');
+                  }}>
+                  <View style={styles.listContainer2}>
+                    <Image
+                      source={require('../assets/images/hotel.png')}
+                      style={styles.image}
+                      resizeMode="cover"
+                    />
+                    <View style={{marginLeft: 12}}>
+                      <Text style={styles.name}>{item.name}</Text>
+                      <View style={styles.rating}>
+                        <Text
+                          style={{
+                            fontSize: 14,
+                            color: 'white',
+                            fontFamily: 'Avenir Book',
+                          }}>
+                          6.5
+                        </Text>
+                      </View>
+                      <View style={{flexDirection: 'row'}}>
+                        <Text style={styles.text}>{item.type} </Text>
+                        <Text style={styles.text}>•₹₹₹₹ </Text>
+                        <Text style={styles.text}>6.7km</Text>
+                      </View>
+                      <Text style={styles.text}>{item.address}</Text>
+                    </View>
+                    <View
+                      style={{
+                        position: 'absolute',
+                        top: 7,
+                        flexDirection: 'row',
+                        right: 10,
+                      }}>
+                      <TouchableOpacity>
+                        <Image
+                          source={require('../assets/images/favourite_star.png')}
+                          style={{height: 20, width: 20}}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+          {/* </View> */}
+
+          <TouchableOpacity
+            style={[
+              styles.button2,
+              {
+                alignItems: 'flex-end',
+                bottom: 0,
+                position: 'absolute',
+                width: '100%',
+              },
+            ]}
+            onPress={() => {
+              setSearchText(true);
+              setSearch(true);
+              setMapclick(false);
+            }}>
+            <Text style={styles.btntext2}>List view</Text>
+          </TouchableOpacity>
         </View>
-      </ScrollView>
+      ) : (
+        <></>
+      )}
+      {/* </View> */}
+
+      {mapnear == true &&
+      searchText == false &&
+      search == false &&
+      nearyou == false &&
+      nearyouText == false &&
+      mapclick == false ? (
+        <View style={{flex: 1}}>
+          {/* <View > */}
+
+          <MapScreen />
+
+          <View style={{margin: 7}}>
+            <FlatList
+              data={listdata}
+              horizontal={true}
+              renderItem={({item}) => (
+                <TouchableOpacity
+                  onPress={() => {
+                    navigation.navigate('DetailsScreen');
+                  }}>
+                  <View style={styles.listContainer2}>
+                    <Image
+                      source={require('../assets/images/hotel.png')}
+                      style={styles.image}
+                      resizeMode="cover"
+                    />
+                    <View style={{marginLeft: 12}}>
+                      <Text style={styles.name}>{item.name}</Text>
+                      <View style={styles.rating}>
+                        <Text
+                          style={{
+                            fontSize: 14,
+                            color: 'white',
+                            fontFamily: 'Avenir Book',
+                          }}>
+                          6.5
+                        </Text>
+                      </View>
+                      <View style={{flexDirection: 'row'}}>
+                        <Text style={styles.text}>{item.type} </Text>
+                        <Text style={styles.text}>•₹₹₹₹ </Text>
+                        <Text style={styles.text}>6.7km</Text>
+                      </View>
+                      <Text style={styles.text}>{item.address}</Text>
+                    </View>
+                    <View
+                      style={{
+                        position: 'absolute',
+                        top: 7,
+                        flexDirection: 'row',
+                        right: 10,
+                      }}>
+                      <TouchableOpacity>
+                        <Image
+                          source={require('../assets/images/favourite_star.png')}
+                          style={{height: 20, width: 20}}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+          {/* </View> */}
+
+          <TouchableOpacity
+            style={[
+              styles.button2,
+              {
+                alignItems: 'flex-end',
+                bottom: 0,
+                position: 'absolute',
+                width: '100%',
+              },
+            ]}
+            onPress={() => {
+              setMapnear(false);
+              setNearyoutext(true);
+              setNearyou(true);
+            }}>
+            <Text style={styles.btntext2}>List view</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <></>
+      )}
+
+      {filter ? (
+        <>
+          <ScrollView>
+            <View style={styles.filtercontainer}>
+              <Text style={styles.filtertext}>Sort by</Text>
+            </View>
+
+            <View style={styles.buttontabs}>
+              <View
+                style={{
+                  borderRightWidth: 1,
+                  width: '33.3%',
+                  height: '100%',
+                  borderRightColor: '#351347',
+                }}>
+                <TouchableOpacity
+                  onPress={() => {
+                    setClicked1(!clicked1),
+                      setClicked2(false),
+                      setClicked3(false);
+                  }}>
+                  {clicked1 ? (
+                    <View style={styles.buttonActiveview}>
+                      <Text style={styles.buttonActive}>Popular</Text>
+                    </View>
+                  ) : (
+                    <View style={styles.buttonview}>
+                      <Text style={styles.button}>Popular</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              </View>
+
+              <View
+                style={{
+                  width: '33.3%',
+                  height: '100%',
+                  borderRightWidth: 1,
+                  borderRightColor: '#351347',
+                }}>
+                <TouchableOpacity
+                  onPress={() => {
+                    setClicked2(!clicked2),
+                      setClicked1(false),
+                      setClicked3(false);
+                  }}>
+                  {clicked2 ? (
+                    <View style={styles.buttonActiveview}>
+                      <Text style={styles.buttonActive}>Distance</Text>
+                    </View>
+                  ) : (
+                    <View style={styles.buttonview}>
+                      <Text style={styles.button}>Distance</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              </View>
+
+              <View style={{width: '33.3%', height: '100%'}}>
+                <TouchableOpacity
+                  onPress={() => {
+                    setClicked3(!clicked3),
+                      setClicked2(false),
+                      setClicked1(false);
+                  }}>
+                  {clicked3 ? (
+                    <View style={styles.buttonActiveview}>
+                      <Text style={styles.buttonActive}>Rating</Text>
+                    </View>
+                  ) : (
+                    <View style={styles.buttonview}>
+                      <Text style={styles.button}>Rating</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+            <View style={styles.filtercontainer}>
+              <Text style={styles.filtertext}>Filter by</Text>
+            </View>
+            <View style={styles.radiusview}>
+              <Text style={styles.radiustext}>Set Radius</Text>
+              <TextInput
+                name="Radius"
+                value={radius}
+                onChangeText={() => setChangeRadius(radius)}
+                style={{marginTop: Platform.OS === 'ios' ? 10 : -5}}
+              />
+              <View
+                style={{
+                  borderWidth: 0.3,
+                  marginTop: Platform.OS === 'ios' ? 10 : -5,
+                  borderColor: '#A3A3A3',
+                }}
+              />
+            </View>
+
+            <View style={styles.buttontabs}>
+              <View
+                style={{
+                  borderRightWidth: 1,
+                  width: '25%',
+                }}>
+                <TouchableOpacity
+                  onPress={() => {
+                    setRupeeone(!rupeeone),
+                      setRupeetwo(false),
+                      setRupeethree(false);
+                    setRupeefour(false);
+                  }}>
+                  {rupeeone ? (
+                    <View style={styles.buttonActiveview}>
+                      <Image
+                        source={require('../assets/images/ruppe_btn1_selected.png')}
+                        style={{height: '100%', width: '100%'}}
+                      />
+                    </View>
+                  ) : (
+                    <View style={styles.buttonview}>
+                      <Image
+                        source={require('../assets/images/ruppeone.png')}
+                        style={{height: '100%', width: '103%'}}
+                      />
+                    </View>
+                  )}
+                </TouchableOpacity>
+              </View>
+
+              <View
+                style={{
+                  width: '25%',
+                  height: '100%',
+                }}>
+                <TouchableOpacity
+                  onPress={() => {
+                    setRupeeone(false),
+                      setRupeetwo(!rupeetwo),
+                      setRupeethree(false);
+                    setRupeefour(false);
+                  }}>
+                  {rupeetwo ? (
+                    <View style={styles.buttonActiveview}>
+                      <Image
+                        source={require('../assets/images/ruppe_btn2_selected.png')}
+                        style={{height: '100%', width: '100%'}}
+                      />
+                    </View>
+                  ) : (
+                    <View style={styles.buttonview}>
+                      <Image
+                        source={require('../assets/images/ruppe_btn2.png')}
+                        style={{height: '100%', width: '103%'}}
+                      />
+                    </View>
+                  )}
+                </TouchableOpacity>
+              </View>
+
+              <View
+                style={{
+                  width: '25%',
+                  height: '100%',
+                }}>
+                <TouchableOpacity
+                  onPress={() => {
+                    setRupeeone(false),
+                      setRupeetwo(false),
+                      setRupeethree(!rupeethree);
+                    setRupeefour(false);
+                  }}>
+                  {rupeethree ? (
+                    <View style={styles.buttonActiveview}>
+                      <Image
+                        source={require('../assets/images/ruppe_btn3_selected.png')}
+                        style={{height: '100%', width: '100%'}}
+                      />
+                    </View>
+                  ) : (
+                    <View style={styles.buttonview}>
+                      <Image
+                        source={require('../assets/images/ruppe_btn3.png')}
+                        style={{height: '100%', width: '103%'}}
+                      />
+                    </View>
+                  )}
+                </TouchableOpacity>
+              </View>
+
+              <View style={{width: '25%', height: '100%'}}>
+                <TouchableOpacity
+                  onPress={() => {
+                    setRupeeone(false),
+                      setRupeetwo(false),
+                      setRupeethree(false);
+                    setRupeefour(!rupeefour);
+                  }}>
+                  {rupeefour ? (
+                    <View style={styles.buttonActiveview}>
+                      <Image
+                        source={require('../assets/images/ruppe_btn4_selected.png')}
+                        style={{height: '100%', width: '100%'}}
+                      />
+                    </View>
+                  ) : (
+                    <View style={styles.buttonview}>
+                      <Image
+                        source={require('../assets/images/ruppe_btn4.png')}
+                        style={{height: '100%', width: '100%'}}
+                      />
+                    </View>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View style={styles.filtercontainer}>
+              <Text style={styles.filtertext}>Features</Text>
+            </View>
+
+            <TouchableOpacity onPress={() => setCredit(!credit)}>
+              {credit ? (
+                <View style={styles.featureview}>
+                  <Text style={styles.featureActivetext}>
+                    Accept credit cards
+                  </Text>
+                  <Image
+                    source={require('../assets/images/filter_selected.png')}
+                    style={{height: 20, width: 20}}
+                  />
+                </View>
+              ) : (
+                <View style={styles.featureview}>
+                  <Text style={styles.featuretext}>Accept credit cards</Text>
+                  <Icon name="add" size={25} style={{color: '#8D8D8D'}} />
+                </View>
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => setDelivery(!delivery)}>
+              {delivery ? (
+                <View style={styles.featureview}>
+                  <Text style={styles.featureActivetext}>Delivery</Text>
+                  <Image
+                    source={require('../assets/images/filter_selected.png')}
+                    style={{height: 20, width: 20}}
+                  />
+                </View>
+              ) : (
+                <View style={styles.featureview}>
+                  <Text style={styles.featuretext}>Delivery</Text>
+                  <Icon name="add" size={25} style={{color: '#8D8D8D'}} />
+                </View>
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => setAnimal(!animal)}>
+              {animal ? (
+                <View style={styles.featureview}>
+                  <Text style={styles.featureActivetext}>Dog friendly</Text>
+                  <Image
+                    source={require('../assets/images/filter_selected.png')}
+                    style={{height: 20, width: 20}}
+                  />
+                </View>
+              ) : (
+                <View style={styles.featureview}>
+                  <Text style={styles.featuretext}>Dog friendly</Text>
+                  <Icon name="add" size={25} style={{color: '#8D8D8D'}} />
+                </View>
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => setFamily(!family)}>
+              {family ? (
+                <View style={styles.featureview}>
+                  <Text style={styles.featureActivetext}>
+                    Family-friendly places
+                  </Text>
+                  <Image
+                    source={require('../assets/images/filter_selected.png')}
+                    style={{height: 20, width: 20}}
+                  />
+                </View>
+              ) : (
+                <View style={styles.featureview}>
+                  <Text style={styles.featuretext}>Family-friendly places</Text>
+                  <Icon name="add" size={25} style={{color: '#8D8D8D'}} />
+                </View>
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => setWalk(!walk)}>
+              {walk ? (
+                <View style={styles.featureview}>
+                  <Text style={styles.featureActivetext}>
+                    In walking distance
+                  </Text>
+                  <Image
+                    source={require('../assets/images/filter_selected.png')}
+                    style={{height: 20, width: 20}}
+                  />
+                </View>
+              ) : (
+                <View style={styles.featureview}>
+                  <Text style={styles.featuretext}>In walking distance</Text>
+                  <Icon name="add" size={25} style={{color: '#8D8D8D'}} />
+                </View>
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => setOutdoor(!outdoor)}>
+              {outdoor ? (
+                <View style={styles.featureview}>
+                  <Text style={styles.featureActivetext}>Outdoor seating</Text>
+                  <Image
+                    source={require('../assets/images/filter_selected.png')}
+                    style={{height: 20, width: 20}}
+                  />
+                </View>
+              ) : (
+                <View style={styles.featureview}>
+                  <Text style={styles.featuretext}>Outdoor seating</Text>
+                  <Icon name="add" size={25} style={{color: '#8D8D8D'}} />
+                </View>
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => setPark(!park)}>
+              {park ? (
+                <View style={styles.featureview}>
+                  <Text style={styles.featureActivetext}>Parking</Text>
+                  <Image
+                    source={require('../assets/images/filter_selected.png')}
+                    style={{height: 20, width: 20}}
+                  />
+                </View>
+              ) : (
+                <View style={styles.featureview}>
+                  <Text style={styles.featuretext}>Parking</Text>
+                  <Icon name="add" size={25} style={{color: '#8D8D8D'}} />
+                </View>
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => setWifi(!wifi)}>
+              {wifi ? (
+                <View style={styles.featureview}>
+                  <Text style={styles.featureActivetext}>Wi-Fi</Text>
+                  <Image
+                    source={require('../assets/images/filter_selected.png')}
+                    style={{height: 20, width: 20}}
+                  />
+                </View>
+              ) : (
+                <View style={styles.featureview}>
+                  <Text style={styles.featuretext}>Wi-Fi</Text>
+                  <Icon name="add" size={25} style={{color: '#8D8D8D'}} />
+                </View>
+              )}
+            </TouchableOpacity>
+          </ScrollView>
+        </>
+      ) : (
+        <></>
+      )}
     </View>
   );
 };
@@ -504,6 +1016,7 @@ const styles = StyleSheet.create({
     height: 26,
     width: 23,
     marginTop: 5,
+    marginLeft: -2,
   },
   text: {
     width: '90%',
@@ -624,10 +1137,20 @@ const styles = StyleSheet.create({
   },
   button: {
     height: 70,
-    marginTop: 160,
+    // marginTop: 160,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#370F24',
+  },
+  buttonnew: {
+    height: 70,
+    // marginTop: 160,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#370F24',
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
   },
   btntext: {
     alignSelf: 'center',
@@ -650,12 +1173,12 @@ const styles = StyleSheet.create({
   },
   listContainer2: {
     backgroundColor: '#FFFFFF',
-    marginHorizontal: 6,
+    // marginHorizontal: 6,
     // borderRadius: 5,
     height: 130,
     width: 380,
-    borderWidth:1,
 
+    // flex:1,
     shadowColor: 'grey',
     shadowOffset: {
       width: 1,
@@ -666,5 +1189,92 @@ const styles = StyleSheet.create({
     padding: 10,
     elevation: 5,
     flexDirection: 'row',
+  },
+  filtercontainer: {
+    height: Platform.OS === 'ios' ? 45 : 55,
+  },
+  filtertext: {
+    fontFamily: 'Avenir Medium',
+    color: '#858585',
+    fontSize: Platform.OS === 'ios' ? 16 : 18,
+    marginVertical: 12,
+    marginLeft: 25,
+  },
+  buttontabs: {
+    flexDirection: 'row',
+    height: 55,
+
+    // justifyContent: 'space-between',
+    width: '105%',
+    borderWidth: 1,
+    borderColor: '#351347',
+    marginLeft: -1,
+  },
+  buttonActiveview: {
+    backgroundColor: '#351347',
+    height: '100%',
+    width: '100%',
+  },
+  buttonActive: {
+    // textAlign: 'center',
+    fontFamily: 'Avenir Medium',
+    fontSize: Platform.OS === 'ios' ? 14 : 16,
+
+    color: 'white',
+    alignSelf: 'center',
+    marginVertical: 15,
+  },
+  buttonview: {
+    // width: 50,
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'white',
+  },
+  button: {
+    // textAlign: 'center',
+    fontFamily: 'Avenir Medium',
+    fontSize: Platform.OS === 'ios' ? 14 : 16,
+
+    color: '#351347',
+    // borderWidth:1,
+    // height:'100%',
+    alignSelf: 'center',
+    marginVertical: 15,
+  },
+  radiusview: {
+    height: Platform.OS === 'ios' ? 100 : 110,
+
+    backgroundColor: 'white',
+    paddingHorizontal: 25,
+    paddingTop: 20,
+  },
+  radiustext: {
+    fontFamily: 'Avenir Book',
+    fontSize: 13,
+    color: '#A3A3A3',
+  },
+  featureview: {
+    height: Platform.OS === 'ios' ? 45 : 55,
+
+    justifyContent: 'center',
+    marginBottom: 1,
+    backgroundColor: 'white',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 25,
+    alignItems: 'center',
+  },
+  featuretext: {
+    fontFamily: 'Avenir Book',
+    color: '#8D8D8D',
+
+    fontSize: Platform.OS === 'ios' ? 15 : 18,
+  },
+
+  featureActivetext: {
+    fontFamily: 'Avenir Book',
+    color: '#000000',
+
+    fontSize: Platform.OS === 'ios' ? 15 : 18,
   },
 });
