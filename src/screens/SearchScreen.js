@@ -56,12 +56,13 @@ const listdata = [
 ];
 export const SearchScreen = ({navigation}) => {
   const [text, setText] = useState();
+  const [text2, setText2] = useState();
 
   const [search, setSearch] = useState(false);
-  const [searchText, setSearchText] = useState(null);
+  const [searchText, setSearchText] = useState(false);
 
   const [nearyou, setNearyou] = useState(false);
-  const [nearyouText, setNearyoutext] = useState(null);
+  const [nearyouText, setNearyoutext] = useState(false);
 
   const [mapclick, setMapclick] = useState(false);
   const [mapnear, setMapnear] = useState(false);
@@ -136,9 +137,16 @@ export const SearchScreen = ({navigation}) => {
                   }}
                   placeholderTextColor="#CACACA"
                   onFocus={() => {
-                    setSearch(true);
+                   
+                    if(searchText != ''){
+                        
+                      setSearchText(!searchText)
+                      // setSearch(false);
+                    }else{
+                      setSearch(true)
+                    }
                     setNearyou(false);
-                    setNearyoutext('');
+                    // setNearyoutext('');
                     setFilter(false);
                   }}
                   style={styles.text}></TextInput>
@@ -196,12 +204,12 @@ export const SearchScreen = ({navigation}) => {
                 <TextInput
                   name="NearMe"
                   placeholder="Near Me"
-                  value={text}
-                  onChangeText={text => {
+                  value={text2}
+                  onChangeText={text2 => {
                     setSearchText('');
                     setSearch(false);
                     setNearyou(true);
-                    setNearyoutext(text);
+                    setNearyoutext(text2);
                     setFilter(false);
                   }}
                   placeholderTextColor="#CACACA"
@@ -209,6 +217,7 @@ export const SearchScreen = ({navigation}) => {
                     setNearyou(true);
                     setSearch(false);
                     setFilter(false);
+                    setSearchText('')
                   }}
                   style={styles.text}></TextInput>
               </View>

@@ -3,6 +3,7 @@ import {persistReducer} from 'redux-persist';
 import {combineReducers} from '@reduxjs/toolkit';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import UserDetailsReducer from '../ReduxPersist/UserDetails';
+import RatingSliceReducer from '../ReduxPersist/RatingSlice';
 
 
 
@@ -16,6 +17,7 @@ const persistConfig = {
 
   const reducer = combineReducers({
     userDetails:UserDetailsReducer,
+    ratingState:RatingSliceReducer
   });
 
 const persistRed = persistReducer(persistConfig, reducer);

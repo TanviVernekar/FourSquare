@@ -9,10 +9,14 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
+import { useDispatch } from 'react-redux';
 import { Button2, Buttons } from '../components/Buttons';
+import { ModalComponent } from '../components/ModalComponent';
+import { setRatingState } from '../redux/ReduxPersist/RatingSlice';
 import { MapScreen } from './MapScreen';
 
 export const DetailsScreen = ({navigation}) => {
+  const dispatch=useDispatch()
   return (
     <View style={{flex: 1}}>
       <StatusBar
@@ -56,10 +60,27 @@ export const DetailsScreen = ({navigation}) => {
               {' '}
               Indian Restuarant,Chinese Restuarant, and Italian Restuarant.
             </Text>
+
+           
+            <View style={{alignItems:'center',flexDirection:'row',justifyContent:'center',marginTop:10}}>
+              <Image source={require('../assets/images/rating_icon_selected.png')} style={{height:20,width:20}}/>
+              <Image source={require('../assets/images/rating_icon_selected.png')} style={{height:20,width:20,left:10}}/>
+              <Image source={require('../assets/images/rating_icon_selected.png')} style={{height:20,width:20,left:15}}/>
+              <Image source={require('../assets/images/rating_icon_selected.png')} style={{height:20,width:20,left:20}}/>
+              <Image source={require('../assets/images/rating_icon_selected.png')} style={{height:20,width:20,left:25}}/>
+            </View>
+         
+
           </View>
         </ImageBackground>
         <View style={styles.middleContainer}>
-          <TouchableOpacity>
+          <TouchableOpacity
+           onPress={() => {
+            {
+              dispatch(setRatingState());
+            }
+          }}
+          >
             <View>
               <Image
                 source={require('../assets/images/rating_icon.png')}
@@ -100,6 +121,7 @@ export const DetailsScreen = ({navigation}) => {
         <Button2 text='Add Review'/>
       </View>
       </ScrollView>
+      <ModalComponent/>
     </View>
   );
 };
