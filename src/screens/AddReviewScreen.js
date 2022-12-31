@@ -17,11 +17,20 @@ import {
 
 import * as yup from 'yup';
 import axios from 'axios';
-import { Buttons } from '../components/Buttons';
+import {Button2, Buttons} from '../components/Buttons';
 import {KeyboardAwareView} from 'react-native-keyboard-aware-view';
 import ImagePicker from 'react-native-image-crop-picker';
+import { addReviewApi } from '../auth/Auth';
+import { useSelector } from 'react-redux';
 
 export const AddReviewScreen = ({navigation}) => {
+
+
+
+  const token = useSelector(state => state.userDetails.token);
+  const details = useSelector(state => state.particularPlace.details);
+  const id = details.data?.placeDetails._id;
+
   const isPortrait = () => {
     const dim = Dimensions.get('screen');
     return dim.height >= dim.width;
@@ -34,34 +43,92 @@ export const AddReviewScreen = ({navigation}) => {
   }, []);
 
   const [text, setText] = useState('');
-  const handleSubmit = () => {
-    console.log(text);
+
+
+  const createFromData = obj => {
+    let formData = new FormData();
+    for (let key in obj) {
+      if (key === 'image') {
+        const imageData = obj[key];
+        imageData?.map(item => {
+          formData.append('image', {
+            uri: item?.path,
+            type: item?.mime,
+            name:
+              item?.filename !== undefined
+                ? `${item?.filename}.${item?.mime.substr(
+                    item?.mime.indexOf('/') + 1,
+                  )}`
+                : `rnImagePicker.${item?.mime.substr(
+                    item?.mime.indexOf('/') + 1,
+                  )}`,
+          });
+        });
+      } else {
+        if (obj[key]) {
+          formData.append(`${key}`, `${obj[key]}`);
+        }
+      }
+    }
+    return formData;
   };
 
-  const [img,setImage] = useState();
+
+
+
+  const handleSubmit = async()=>{
+    let body = '';
+    if(img){
+      body={
+        placeId:id,
+        reviewText:text,
+        image:image,
+      };
+    }else{
+      body={
+        placeId:id,
+        reviewText:text,
+      };
+    }
+    const objBody = createFromData(body)
+    console.log(objBody)
+    const res = await addReviewApi(token,objBody)
+      navigation.navigate('HomeScreen')
+  }
+
+
+  const [photoState, setPhotoState] = useState('false');
+  useEffect(() => {}, [photoState]);
+  const [img, setImg] = useState([]);
+  console.log(img);
+  const [image, setImage] = useState([]);
   const changeProfileImageFromLibrary = () => {
+    setPhotoState(false)
     ImagePicker.openPicker({
       width: 110,
       height: 110,
       cropping: true,
-    }).then(img => {
-      setImage(img.path);
-      const {filename, mime, path} = img;
-      setProfilePhoto({filename, mime, path});
+    }).then(photo => {
+      // setImage(img.path);
+      img.push(photo.path);
+      const {filename, mime, path} = photo;
+      image.push({filename, mime, path});
+      // setProfilePhoto({filename, mime, path});
+      setPhotoState(true);
     });
   };
-  const changeProfileImageFromCamera = () => {
-    ImagePicker.openCamera({
-      width: 110,
-      height: 110,
-      cropping: true,
-    }).then(img => {
-      setImage(img.path);
-      const {filename, mime, path} = img;
-      setProfilePhoto({filename, mime, path});
+  // const changeProfileImageFromCamera = () => {
+  //   ImagePicker.openCamera({
+  //     width: 110,
+  //     height: 110,
+  //     cropping: true,
+  //   }).then(img => {
+  //     setImage(img.path);
+  //     const {filename, mime, path} = img;
+  //     setProfilePhoto({filename, mime, path});
 
-    });
-  };
+  //   });
+  // };
   return (
     <View style={styles.container}>
       <KeyboardAwareView>
@@ -84,7 +151,7 @@ export const AddReviewScreen = ({navigation}) => {
                 </TouchableOpacity>
                 <View
                   style={{
-                    marginRight:'42%',
+                    marginRight: '42%',
                   }}>
                   <Text style={styles.feedbackText}>Add Review</Text>
                 </View>
@@ -125,18 +192,23 @@ export const AddReviewScreen = ({navigation}) => {
                 }}>
                 {img ? (
                   <>
-                    <View style={styles.addphotosIconView}>
+                    {img?.map(item => (
+                      <View style={styles.addphotosIconView}>
                         <Image
-                          source={{uri: img}}
+                          source={{uri:item}}
                           style={styles.addphotosIcon}
                         />
-                    </View>
+                      </View>
+                    ))}
                   </>
                 ) : (
                   <></>
                 )}
                 <View style={styles.addphotosIconView}>
-                  <TouchableOpacity onPress={()=>{changeProfileImageFromLibrary()}}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      changeProfileImageFromLibrary();
+                    }}>
                     <Image
                       source={require('../assets/images/aad_photo.png')}
                       style={styles.addphotosIcon}
@@ -146,8 +218,8 @@ export const AddReviewScreen = ({navigation}) => {
               </View>
             </View>
           </ScrollView>
-          <Buttons
-            text='Submit'
+          <Button2
+            text="Submit"
             disable={!text}
             onPress={() => {
               handleSubmit();
@@ -173,7 +245,7 @@ const styles = StyleSheet.create({
   backIconPress: {
     paddingHorizontal: 15,
     paddingVertical: 15,
-    marginRight:90,
+    marginRight: 90,
   },
   backIconStyle: {
     height: 25,
@@ -207,9 +279,9 @@ const styles = StyleSheet.create({
   addphotosIconView: {
     marginRight: 17,
     marginVertical: 10,
-    borderRadius:5,
-    overflow:'hidden',
-
+    borderRadius: 5,
+    overflow: 'hidden',
+    borderWidth:1
   },
   addphotosIcon: {
     height: 70,
@@ -223,5 +295,3 @@ const styles = StyleSheet.create({
     width: '100%',
   },
 });
-
-

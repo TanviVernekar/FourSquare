@@ -11,50 +11,28 @@ import {
   Platform,
   FlatList,
   ScrollView,
+  useWindowDimensions,
 } from 'react-native';
 
 import {Buttons} from '../components/Buttons';
 import {ListComponent} from '../components/ListComponent';
+import {SearchListComponent} from '../components/SearchListcomponent';
 import {MapScreen} from '../screens/MapScreen';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {filterApi, getNearCity, nearmeApi, searchPlace} from '../auth/Auth';
+import {useDispatch, useSelector} from 'react-redux';
+import {
+  setFilterList,
+  setSearchNear,
+  setSearchTextList,
+} from '../redux/ReduxPersist/SearchSlice';
+import {SearchMapScreen} from './SearchMapScreen';
 
-const data = [
-  {
-    id: 1,
-    source: require('../assets/images/hotel.png'),
-    place: 'Santhekatte',
-  },
-  {
-    id: 2,
-    source: require('../assets/images/hotel.png'),
-    place: 'Manipal',
-  },
-];
-
-const listdata = [
-  {
-    id: 1,
-    name: 'Attil',
-    type: 'Indian',
-    distance: '4.5Km',
-    address: 'manipal',
-  },
-  {
-    id: 2,
-    name: 'Attil',
-    type: 'Indian',
-    distance: '4.5Km',
-    address: 'manipal',
-  },
-  {
-    id: 3,
-    name: 'Attil',
-    type: 'Indian',
-    distance: '4.5Km',
-    address: 'manipal',
-  },
-];
 export const SearchScreen = ({navigation}) => {
+  const {width} = useWindowDimensions();
+
+  const dispatch = useDispatch();
+
   const [text, setText] = useState();
   const [text2, setText2] = useState();
 
@@ -69,12 +47,18 @@ export const SearchScreen = ({navigation}) => {
 
   const [filter, setFilter] = useState(false);
 
+  const [filterState, setFilterState] = useState(false);
+
+  const [mapFilter, setMapFilter] = useState(false);
+
+  const [filterResult, setFilterResult] = useState();
+
   const [clicked1, setClicked1] = useState(false);
   const [clicked2, setClicked2] = useState(false);
   const [clicked3, setClicked3] = useState(false);
 
-  const [radius, setRadius] = useState();
-  const [changeRadius, setChangeRadius] = useState(null);
+  const [radius, setRadius] = useState('');
+  // const [changeRadius, setChangeRadius] = useState(null);
 
   const [rupeeone, setRupeeone] = useState(false);
   const [rupeetwo, setRupeetwo] = useState(false);
@@ -89,6 +73,221 @@ export const SearchScreen = ({navigation}) => {
   const [outdoor, setOutdoor] = useState(false);
   const [park, setPark] = useState(false);
   const [wifi, setWifi] = useState(false);
+
+  let [favourite, setFavourite] = useState();
+
+  let [currentLoc, setCurrentLoc] = useState();
+  const [currentLocMap, setCurrentLocMap] = useState(false);
+
+  const [Viewable, SetViewable] = React.useState([]);
+  const ref = React.useRef(null);
+
+  const onViewRef = React.useRef(viewableItems => {
+    let Check = [];
+    for (var i = 0; i < viewableItems.viewableItems.length; i++) {
+      Check.push(viewableItems.viewableItems[i].item);
+      // console.info(viewableItems.viewableItems);
+    }
+    SetViewable(Check);
+  });
+  // console.log('?????', Viewable);
+
+  const viewConfigRef = React.useRef({viewAreaCoveragePercentThreshold: 80});
+
+  const token = useSelector(state => state.userDetails.token);
+  const searchNear = useSelector(state => state.searchSlice.searchNear);
+  const searchTextList = useSelector(state => state.searchSlice.searchTextList);
+  const favouriteList = useSelector(state => state.favouriteSlice.favList);
+  let latitude = useSelector(state => state.userDetails.latitude);
+  let longitude = useSelector(state => state.userDetails.longitude);
+  const filteredList = useSelector(state => state.searchSlice.filterList);
+  // console.log("90909090",filteredList)
+
+  // console.log('()()iiii()()', searchTextList.data);
+
+  const getSortByValue = () => {
+    if (clicked1) {
+      return 'popular';
+    } else if (clicked2) {
+      return 'distance';
+    } else if (clicked3) {
+      return 'rating';
+    } else {
+      return '';
+    }
+  };
+
+  const getPriceRange = () => {
+    if (rupeeone) {
+      return 1;
+    } else if (rupeetwo) {
+      return 2;
+    } else if (rupeethree) {
+      return 3;
+    } else if (rupeefour) {
+      return 4;
+    } else {
+      return 1;
+    }
+  };
+
+  const feature = {
+    acceptsCreditCard: credit,
+    delivery: delivery,
+    dogFriendly: animal,
+    familyFriendly: family,
+    inWalkingDistance: walk,
+    outdoorSeating: outdoor,
+    parking: park,
+    wifi: wifi,
+    text: '',
+  };
+
+  const getFeaturesValue = () => {
+    Object.keys(feature).forEach(key => {
+      if (feature[key] === false) {
+        delete feature[key];
+      }
+    });
+    return feature;
+  };
+  const values = getFeaturesValue();
+  const obj = {
+    longitude: longitude,
+    latitude: latitude,
+    sortBy: getSortByValue(),
+    stars: getPriceRange(),
+    ...values,
+    radius: radius,
+    // text: text,
+  };
+
+  // console.log('selects', obj);
+
+  // console.info('INFO', searchTextList.data.length);
+
+  const getNearcity = async () => {
+    const res = await getNearCity(token);
+    // console.log(res);
+    if (res) {
+      dispatch(setSearchNear(res));
+    }
+  };
+
+  const searchplace = async texts => {
+    const body = {
+      latitude: latitude,
+      longitude: longitude,
+      text: texts,
+    };
+    // console.log(body);
+    const searchdata = await searchPlace(token, body);
+    // console.log('dtttt', searchdata);
+    if (searchdata) {
+      const list = dispatch(setSearchTextList(searchdata));
+      // console.log('heloo', list);
+    }
+  };
+
+  const filterfunction = async obj => {
+    const res = await filterApi(token, obj);
+    dispatch(setFilterList(res));
+    // setFilterResult(res)
+  };
+
+  const renderItem = (item, index) => {
+    return (
+      <>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate('DetailsScreen');
+          }}>
+          {favouriteList ? (
+            <>
+              {(favourite = false)}
+              {favouriteList ? (
+                <>
+                  {favouriteList?.map(temp => (
+                    // console.log(item?.item?._id),
+                    <View key={temp?._id}>
+                      <>
+                        {temp?._id === item?.item?._id
+                          ? (favourite = true)
+                          : null}
+                      </>
+                    </View>
+                  ))}
+                </>
+              ) : (
+                <>{(favourite = false)}</>
+              )}
+            </>
+          ) : (
+            <>{(favourite = false)}</>
+          )}
+
+          <SearchListComponent
+            navigation={navigation}
+            placeName={item?.item?.placeName}
+            placePic={item?.item?.placePic.url}
+            overallrating={item.item?.overallRating}
+            description={item?.item?.description}
+            address={item?.item?.address}
+            dist={item.item?.dist.calculated}
+            id={item?.item?._id}
+            favourite={favourite}
+          />
+        </TouchableOpacity>
+      </>
+    );
+  };
+
+  const renderItems = (item, index) => {
+    return (
+      <>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate('DetailsScreen');
+          }}>
+          {favouriteList ? (
+            <>
+              {(favourite = false)}
+              {favouriteList ? (
+                <>
+                  {favouriteList?.map(temp => (
+                    // console.log(item?._id),
+                    <View key={temp?._id}>
+                      <>
+                        {temp?._id === item?.item?._id
+                          ? (favourite = true)
+                          : null}
+                      </>
+                    </View>
+                  ))}
+                </>
+              ) : (
+                <>{(favourite = false)}</>
+              )}
+            </>
+          ) : (
+            <>{(favourite = false)}</>
+          )}
+
+          <SearchListComponent
+            navigation={navigation}
+            placeName={item?.item?.placeName}
+            placePic={item?.item?.placePic.url}
+            overallrating={item?.item?.overallRating}
+            description={item?.item?.description}
+            address={item?.item?.address}
+            // dist={item?.dist.calculated}
+            id={item?.item?._id}
+            favourite={favourite}
+          />
+        </TouchableOpacity>
+      </>
+    );
+  };
 
   return (
     <View style={styles.mainContainer}>
@@ -128,26 +327,37 @@ export const SearchScreen = ({navigation}) => {
                   name="Search"
                   placeholder="Search"
                   value={text}
-                  onChangeText={text => {
-                    setSearchText(text);
+                  onChangeText={texts => {
+                    setSearchText(texts);
+                    searchplace(texts);
+
                     setSearch(true);
                     setNearyou(false);
                     setNearyoutext(false);
                     setFilter(false);
+
+                    setMapclick(false);
+                    setFilterState(false);
+                    setMapFilter(false);
+                    setCurrentLoc(false);
                   }}
                   placeholderTextColor="#CACACA"
                   onFocus={() => {
-                   
-                    if(searchText != ''){
-                        
-                      setSearchText(!searchText)
-                      // setSearch(false);
-                    }else{
-                      setSearch(true)
-                    }
+                    // if (searchText != '') {
+                    //   setSearchText(!searchText);
+                    //   // setSearch(false);
+                    // } else {
+                    //   setSearch(true);
+                    // }
+                    setSearch(true);
                     setNearyou(false);
                     // setNearyoutext('');
                     setFilter(false);
+                    getNearcity();
+                    setMapFilter(false);
+                    setMapclick(false);
+                    setFilterState(false);
+                    setCurrentLoc(false);
                   }}
                   style={styles.text}></TextInput>
               </View>
@@ -163,6 +373,9 @@ export const SearchScreen = ({navigation}) => {
                   setNearyoutext(false);
                   setMapclick(false);
                   setMapnear(false);
+                  setMapFilter(false);
+                  setCurrentLoc(false);
+                  // setFilterState(false)
                 }}>
                 <Image
                   source={require('../assets/images/filter.png')}
@@ -180,6 +393,11 @@ export const SearchScreen = ({navigation}) => {
                   setNearyoutext(false);
                   setMapclick(false);
                   setMapnear(false);
+
+                  filterfunction(obj);
+
+                  setFilterState(true);
+                  setCurrentLoc(false);
                 }}>
                 <Text style={{fontSize: 14, color: 'white', height: 30}}>
                   Done
@@ -204,20 +422,25 @@ export const SearchScreen = ({navigation}) => {
                 <TextInput
                   name="NearMe"
                   placeholder="Near Me"
-                  value={text2}
-                  onChangeText={text2 => {
+                  value={text}
+                  onChangeText={texts => {
                     setSearchText('');
                     setSearch(false);
                     setNearyou(true);
-                    setNearyoutext(text2);
+                    setNearyoutext(texts);
                     setFilter(false);
+                    searchplace(texts);
+                    setFilterState(false);
+                    setCurrentLoc(false);
                   }}
                   placeholderTextColor="#CACACA"
                   onFocus={() => {
                     setNearyou(true);
                     setSearch(false);
                     setFilter(false);
-                    setSearchText('')
+                    setSearchText('');
+                    setFilterState(false);
+                    setCurrentLoc(false);
                   }}
                   style={styles.text}></TextInput>
               </View>
@@ -234,12 +457,12 @@ export const SearchScreen = ({navigation}) => {
               <View style={{flex: 1}}>
                 <View>
                   <ScrollView>
-                    {listdata.map(item => (
+                    {searchTextList?.data?.map(item => (
                       <TouchableOpacity
                         onPress={() => {
                           navigation.navigate('DetailsScreen');
                         }}>
-                        <View style={styles.listContainer}>
+                        {/* <View style={styles.listContainer}>
                           <Image
                             source={require('../assets/images/hotel.png')}
                             style={styles.image}
@@ -278,7 +501,41 @@ export const SearchScreen = ({navigation}) => {
                               />
                             </TouchableOpacity>
                           </View>
-                        </View>
+                        </View> */}
+                        {favouriteList ? (
+                          <>
+                            {(favourite = false)}
+                            {favouriteList ? (
+                              <>
+                                {favouriteList?.map(temp => (
+                                  <View key={temp?._id}>
+                                    <>
+                                      {temp?._id === item?._id
+                                        ? (favourite = true)
+                                        : null}
+                                    </>
+                                  </View>
+                                ))}
+                              </>
+                            ) : (
+                              <>{(favourite = false)}</>
+                            )}
+                          </>
+                        ) : (
+                          <>{(favourite = false)}</>
+                        )}
+
+                        <SearchListComponent
+                          navigation={navigation}
+                          placeName={item.placeName}
+                          placePic={item.placePic.url}
+                          overallrating={item.overallRating}
+                          description={item.description}
+                          address={item.address}
+                          dist={item.dist.calculated}
+                          id={item._id}
+                          favourite={favourite}
+                        />
                       </TouchableOpacity>
                     ))}
                   </ScrollView>
@@ -294,6 +551,7 @@ export const SearchScreen = ({navigation}) => {
                     setSearch(false);
                     setNearyou(false);
                     setNearyoutext(false);
+                    setFilterState(false);
                   }}>
                   <Text style={styles.btntext}>Map view</Text>
                 </TouchableOpacity>
@@ -309,14 +567,19 @@ export const SearchScreen = ({navigation}) => {
                       <Text style={styles.searchtext}>Near by places</Text>
                     </View>
 
-                    {data.map(item => (
-                      <TouchableOpacity>
-                        <View style={styles.placeview} key={item.id}>
+                    {searchNear?.data?.map(item => (
+                      <TouchableOpacity
+                        onPress={async () => {
+                          // setSearchText(true)
+                          setSearchText(item?.cityName);
+                          searchplace({texts: item?.cityName});
+                        }}>
+                        <View style={styles.placeview} key={item?._id}>
                           <Image
-                            source={require('../assets/images/hotel.png')}
+                            source={{uri: item?.photos.url}}
                             style={styles.placeimg}
                           />
-                          <Text style={styles.placetext}>{item.place}</Text>
+                          <Text style={styles.placetext}>{item?.cityName}</Text>
                         </View>
                       </TouchableOpacity>
                     ))}
@@ -327,10 +590,16 @@ export const SearchScreen = ({navigation}) => {
                       <Text style={styles.searchtext}>Suggestions</Text>
                     </View>
 
-                    {data.map(item => (
-                      <TouchableOpacity>
-                        <View style={styles.placeview2} key={item.id}>
-                          <Text style={styles.placetext2}>{item.place}</Text>
+                    {searchNear?.data?.map(item => (
+                      <TouchableOpacity
+                        onPress={async () => {
+                          setSearchText(item?.cityName);
+                          searchplace({texts: item?.cityName});
+                        }}>
+                        <View style={styles.placeview2} key={item?._id}>
+                          <Text style={styles.placetext2}>
+                            {item?.cityName}
+                          </Text>
                         </View>
                       </TouchableOpacity>
                     ))}
@@ -353,51 +622,47 @@ export const SearchScreen = ({navigation}) => {
               <View>
                 <ScrollView>
                   {/* should be mapped */}
-                  <TouchableOpacity
-                    onPress={() => {
-                      navigation.navigate('DetailsScreen');
-                    }}>
-                    <View style={styles.listContainer}>
-                      <Image
-                        source={require('../assets/images/hotel.png')}
-                        style={styles.image}
-                        resizeMode="cover"
+                  {searchTextList?.data?.map(item => (
+                    <TouchableOpacity
+                      onPress={() => {
+                        navigation.navigate('DetailsScreen');
+                      }}>
+                      {favouriteList ? (
+                        <>
+                          {(favourite = false)}
+                          {favouriteList ? (
+                            <>
+                              {favouriteList?.map(temp => (
+                                <View key={temp?._id}>
+                                  <>
+                                    {temp?._id === item?._id
+                                      ? (favourite = true)
+                                      : null}
+                                  </>
+                                </View>
+                              ))}
+                            </>
+                          ) : (
+                            <>{(favourite = false)}</>
+                          )}
+                        </>
+                      ) : (
+                        <>{(favourite = false)}</>
+                      )}
+
+                      <SearchListComponent
+                        navigation={navigation}
+                        placeName={item.placeName}
+                        placePic={item.placePic.url}
+                        overallrating={item.overallRating}
+                        description={item.description}
+                        address={item.address}
+                        dist={item.dist.calculated}
+                        id={item._id}
+                        favourite={favourite}
                       />
-                      <View style={{marginLeft: 12}}>
-                        <Text style={styles.name}>Attil</Text>
-                        <View style={styles.rating}>
-                          <Text
-                            style={{
-                              fontSize: 14,
-                              color: 'white',
-                              fontFamily: 'Avenir Book',
-                            }}>
-                            6.5
-                          </Text>
-                        </View>
-                        <View style={{flexDirection: 'row'}}>
-                          <Text style={styles.text}>Indian </Text>
-                          <Text style={styles.text}>•₹₹₹₹ </Text>
-                          <Text style={styles.text}>6.7km</Text>
-                        </View>
-                        <Text style={styles.text}>Tiger Circle Manipal </Text>
-                      </View>
-                      <View
-                        style={{
-                          position: 'absolute',
-                          top: 7,
-                          flexDirection: 'row',
-                          right: 10,
-                        }}>
-                        <TouchableOpacity>
-                          <Image
-                            source={require('../assets/images/favourite_star.png')}
-                            style={{height: 20, width: 20}}
-                          />
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                  </TouchableOpacity>
+                    </TouchableOpacity>
+                  ))}
                 </ScrollView>
               </View>
 
@@ -416,11 +681,27 @@ export const SearchScreen = ({navigation}) => {
               <View>
                 <TouchableOpacity>
                   <View style={styles.placeview}>
-                    <Image
-                      source={require('../assets/images/location_icon.png')}
-                      style={styles.locimg}
-                    />
-                    <Text style={styles.loctext}>Use my current location</Text>
+                    <TouchableOpacity
+                      onPress={async () => {
+                        const res = await nearmeApi(token, latitude, longitude);
+                        // console.log('+++++', res.data.data);
+                        setCurrentLoc(res.data.data);
+                       currentLoc=res.data.data
+                        // console.log("55555",currentLoc)
+                        setCurrentLocMap(false);
+                        setNearyou(false);
+                        setNearyoutext(false);
+                        setSearch(false);
+                        setSearchText(false);
+                      }}>
+                      <Image
+                        source={require('../assets/images/location_icon.png')}
+                        style={styles.locimg}
+                      />
+                      <Text style={styles.loctext}>
+                        Use my current location
+                      </Text>
+                    </TouchableOpacity>
                   </View>
                 </TouchableOpacity>
                 <TouchableOpacity>
@@ -447,63 +728,30 @@ export const SearchScreen = ({navigation}) => {
       searchText == false &&
       search == false &&
       nearyou == false &&
-      nearyouText == false ? (
+      nearyouText == false &&
+      filterState == false ? (
         <View style={{flex: 1}}>
           {/* <View > */}
 
-          <MapScreen />
+          <SearchMapScreen
+            latitude={Viewable[0]?.location?.coordinates[1]}
+            longitude={Viewable[0]?.location?.coordinates[0]}
+            data={searchTextList?.data}
 
-          <View style={{margin: 7}}>
+            // refs={mapRef}
+          />
+
+          <View style={{height: 138, borderWidth: 1}}>
             <FlatList
-              data={listdata}
-              horizontal={true}
-              renderItem={({item}) => (
-                <TouchableOpacity
-                  onPress={() => {
-                    navigation.navigate('DetailsScreen');
-                  }}>
-                  <View style={styles.listContainer2}>
-                    <Image
-                      source={require('../assets/images/hotel.png')}
-                      style={styles.image}
-                      resizeMode="cover"
-                    />
-                    <View style={{marginLeft: 12}}>
-                      <Text style={styles.name}>{item.name}</Text>
-                      <View style={styles.rating}>
-                        <Text
-                          style={{
-                            fontSize: 14,
-                            color: 'white',
-                            fontFamily: 'Avenir Book',
-                          }}>
-                          6.5
-                        </Text>
-                      </View>
-                      <View style={{flexDirection: 'row'}}>
-                        <Text style={styles.text}>{item.type} </Text>
-                        <Text style={styles.text}>•₹₹₹₹ </Text>
-                        <Text style={styles.text}>6.7km</Text>
-                      </View>
-                      <Text style={styles.text}>{item.address}</Text>
-                    </View>
-                    <View
-                      style={{
-                        position: 'absolute',
-                        top: 7,
-                        flexDirection: 'row',
-                        right: 10,
-                      }}>
-                      <TouchableOpacity>
-                        <Image
-                          source={require('../assets/images/favourite_star.png')}
-                          style={{height: 20, width: 20}}
-                        />
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                </TouchableOpacity>
-              )}
+              data={searchTextList?.data}
+              keyExtractor={item => item?._id}
+              horizontal
+              pagingEnabled
+              // onViewableItemsChanged={}
+              ref={ref}
+              onViewableItemsChanged={onViewRef.current}
+              viewabilityConfig={viewConfigRef.current}
+              renderItem={renderItem}
             />
           </View>
           {/* </View> */}
@@ -536,63 +784,30 @@ export const SearchScreen = ({navigation}) => {
       search == false &&
       nearyou == false &&
       nearyouText == false &&
-      mapclick == false ? (
+      mapclick == false &&
+      filterState == false ? (
         <View style={{flex: 1}}>
           {/* <View > */}
 
-          <MapScreen />
+          <SearchMapScreen
+            latitude={Viewable[0]?.location?.coordinates[1]}
+            longitude={Viewable[0]?.location?.coordinates[0]}
+            data={searchTextList?.data}
 
-          <View style={{margin: 7}}>
+            // refs={mapRef}
+          />
+
+          <View style={{height: 138, borderWidth: 1}}>
             <FlatList
-              data={listdata}
-              horizontal={true}
-              renderItem={({item}) => (
-                <TouchableOpacity
-                  onPress={() => {
-                    navigation.navigate('DetailsScreen');
-                  }}>
-                  <View style={styles.listContainer2}>
-                    <Image
-                      source={require('../assets/images/hotel.png')}
-                      style={styles.image}
-                      resizeMode="cover"
-                    />
-                    <View style={{marginLeft: 12}}>
-                      <Text style={styles.name}>{item.name}</Text>
-                      <View style={styles.rating}>
-                        <Text
-                          style={{
-                            fontSize: 14,
-                            color: 'white',
-                            fontFamily: 'Avenir Book',
-                          }}>
-                          6.5
-                        </Text>
-                      </View>
-                      <View style={{flexDirection: 'row'}}>
-                        <Text style={styles.text}>{item.type} </Text>
-                        <Text style={styles.text}>•₹₹₹₹ </Text>
-                        <Text style={styles.text}>6.7km</Text>
-                      </View>
-                      <Text style={styles.text}>{item.address}</Text>
-                    </View>
-                    <View
-                      style={{
-                        position: 'absolute',
-                        top: 7,
-                        flexDirection: 'row',
-                        right: 10,
-                      }}>
-                      <TouchableOpacity>
-                        <Image
-                          source={require('../assets/images/favourite_star.png')}
-                          style={{height: 20, width: 20}}
-                        />
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                </TouchableOpacity>
-              )}
+              data={searchTextList?.data}
+              keyExtractor={item => item?._id}
+              horizontal
+              pagingEnabled
+              // onViewableItemsChanged={}
+              ref={ref}
+              onViewableItemsChanged={onViewRef.current}
+              viewabilityConfig={viewConfigRef.current}
+              renderItem={renderItem}
             />
           </View>
           {/* </View> */}
@@ -704,7 +919,7 @@ export const SearchScreen = ({navigation}) => {
               <TextInput
                 name="Radius"
                 value={radius}
-                onChangeText={() => setChangeRadius(radius)}
+                onChangeText={radius => setRadius(radius)}
                 style={{marginTop: Platform.OS === 'ios' ? 10 : -5}}
               />
               <View
@@ -984,6 +1199,259 @@ export const SearchScreen = ({navigation}) => {
       ) : (
         <></>
       )}
+
+      {filterState ? (
+        <View style={{flex: 1, borderWidth: 1}}>
+          <View>
+            <ScrollView>
+              {filteredList?.map(item => (
+                <TouchableOpacity
+                  onPress={() => {
+                    navigation.navigate('DetailsScreen');
+                  }}>
+                  {favouriteList ? (
+                    <>
+                      {(favourite = false)}
+                      {!favouriteList ? (
+                        <>{(favourite = false)}</>
+                      ) : (
+                        <>
+                          {favouriteList?.map(temp => (
+                            <View key={temp?._id}>
+                              <>
+                                {temp?._id === item?._id
+                                  ? (favourite = true)
+                                  : null}
+                              </>
+                            </View>
+                          ))}
+                        </>
+                      )}
+                    </>
+                  ) : (
+                    <>{(favourite = false)}</>
+                  )}
+
+                  <SearchListComponent
+                    navigation={navigation}
+                    placeName={item?.placeName}
+                    placePic={item?.placePic.url}
+                    overallrating={item?.overallRating}
+                    description={item?.description}
+                    address={item?.address}
+                    dist={item?.dist.calculated}
+                    id={item?._id}
+                    favourite={favourite}
+                  />
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+
+          <TouchableOpacity
+            style={styles.buttonnew}
+            onPress={() => {
+              setMapnear(false);
+              setNearyoutext(false);
+              setNearyou(false);
+              // setMapclick(false)
+              setMapFilter(true);
+              setSearchText(false);
+              setSearch(false);
+              setFilterState(false);
+              // console.log('mappp')
+            }}>
+            <Text style={styles.btntext}>Map view</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <></>
+      )}
+
+      {mapFilter == true &&
+      searchText == false &&
+      search == false &&
+      nearyou == false &&
+      nearyouText == false ? (
+        <View style={{flex: 1, backgroundColor: 'pink'}}>
+          {/* <View > */}
+
+          <SearchMapScreen
+            latitude={Viewable[0]?.location?.coordinates[1]}
+            longitude={Viewable[0]?.location?.coordinates[0]}
+            data={filteredList}
+
+            // refs={mapRef}
+          />
+
+          <View style={{height: 138, borderWidth: 1}}>
+            <FlatList
+              data={filteredList}
+              keyExtractor={item => item?._id}
+              horizontal
+              pagingEnabled
+              // onViewableItemsChanged={}
+              ref={ref}
+              onViewableItemsChanged={onViewRef.current}
+              viewabilityConfig={viewConfigRef.current}
+              renderItem={renderItems}
+            />
+          </View>
+          {/* </View> */}
+
+          <TouchableOpacity
+            style={[
+              styles.button2,
+              {
+                alignItems: 'flex-end',
+                bottom: 0,
+                position: 'absolute',
+                width: '100%',
+              },
+            ]}
+            onPress={() => {
+              setMapFilter(false);
+              // setSearchText(false);
+              // setSearch(true);
+              // setMapclick(false);
+              setFilter(false);
+              setFilterState(true);
+            }}>
+            <Text style={styles.btntext2}>List view</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <></>
+      )}
+
+      {currentLoc ? (
+        <View style={{flex: 1, borderWidth: 1}}>
+          <View>
+            <ScrollView>
+              {currentLoc?.map(item => (
+                <TouchableOpacity
+                  onPress={() => {
+                    navigation.navigate('DetailsScreen');
+                  }}>
+                  {favouriteList ? (
+                    <>
+                      {(favourite = false)}
+                      {favouriteList ? (
+                        <>
+                          {favouriteList?.map(temp => (
+                            <View key={temp?._id}>
+                              <>
+                                {temp?._id === item?._id
+                                  ? (favourite = true)
+                                  : null}
+                              </>
+                            </View>
+                          ))}
+                        </>
+                      ) : (
+                        <>{(favourite = false)}</>
+                      )}
+                    </>
+                  ) : (
+                    <>{(favourite = false)}</>
+                  )}
+
+                  <SearchListComponent
+                    navigation={navigation}
+                    placeName={item?.placeName}
+                    placePic={item?.placePic.url}
+                    overallrating={item?.overallRating}
+                    description={item?.description}
+                    address={item?.address}
+                    dist={item?.dist.calculated}
+                    id={item?._id}
+                    favourite={favourite}
+                  />
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+
+          <TouchableOpacity
+            style={styles.buttonnew}
+            onPress={() => {
+              setMapnear(false);
+              setNearyoutext(false);
+              setNearyou(false);
+              // setMapclick(false)
+              setMapFilter(false);
+              setSearchText(false);
+              setSearch(false);
+              setFilterState(false);
+              setCurrentLocMap(true);
+              setCurrentLoc(false);
+              // console.log('mappp')
+            }}>
+            <Text style={styles.btntext}>Map view</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <></>
+      )}
+
+      {currentLocMap == true &&
+      searchText == false &&
+      search == false &&
+      nearyou == false &&
+      nearyouText == false &&
+      filterState == false  ? (
+        <View style={{flex: 1, backgroundColor: 'pink'}}>
+          {/* <View > */}
+
+          {/* <SearchMapScreen
+            latitude={Viewable[0]?.location?.coordinates[1]}
+            longitude={Viewable[0]?.location?.coordinates[0]}
+            data={currentLoc}
+
+            // refs={mapRef}
+          /> */}
+
+          <View style={{height: 138, borderWidth: 1}}>
+            <FlatList
+              data={currentLoc}
+              keyExtractor={item => item?._id}
+              horizontal
+              pagingEnabled
+              // onViewableItemsChanged={}
+              ref={ref}
+              onViewableItemsChanged={onViewRef.current}
+              viewabilityConfig={viewConfigRef.current}
+              renderItem={renderItem}
+            />
+          </View>
+          {/* </View> */}
+
+           <TouchableOpacity
+            style={[
+              styles.button2,
+              {
+                alignItems: 'flex-end',
+                bottom: 0,
+                position: 'absolute',
+                width: '100%',
+              },
+            ]}
+            onPress={() => {
+              setMapFilter(false);
+              setSearchText(false);
+              setSearch(false);
+              setMapclick(false);
+              setFilter(false);
+              setFilterState(false);
+              setCurrentLocMap(false);
+              setCurrentLoc(true);
+            }}>
+            <Text style={styles.btntext2}>List view</Text> 
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <></>
+      )}
     </View>
   );
 };
@@ -1050,7 +1518,6 @@ const styles = StyleSheet.create({
   placeview: {
     height: 95,
     flexDirection: 'row',
-
     paddingHorizontal: 25,
     backgroundColor: 'white',
     marginBottom: 1,
@@ -1080,10 +1547,12 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: '#000000',
     alignSelf: 'center',
+    marginLeft: 20,
   },
   locimg: {
     // height: 30,
     // width: 30,
+    // alignSelf: 'center',
     alignSelf: 'center',
   },
   loctext: {

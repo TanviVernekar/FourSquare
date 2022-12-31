@@ -7,27 +7,49 @@ import {SafeAreaView, StyleSheet, View} from 'react-native';
 // Import Map and Marker
 import MapView, {Marker} from 'react-native-maps';
 
-export const MapScreen = ({latitude,longitude,refs}) => {
+export const SearchMapScreen = ({latitude,longitude,refs,data}) => {
+
+    console.log("mmmmm",latitude)
   return (
       <View style={styles.container}>
         <MapView
           style={styles.mapStyle}
           ref={refs}
+        region={{
+          
+            latitude:13.379326,
+            longitude:74.740226,
+            latitudeDelta:1,
+            longitudeDelta:7,
+         
+            
+        }}
           customMapStyle={mapStyle}>
+            {data?.map(marker=>
+              <View key={marker?._id}>
+
+             
           <Marker
-            draggable
+            // draggable
+            pinColor={marker?.location?.coordinates[1] === latitude ?(
+                'red'
+            ):(
+                'green'
+            )}
             coordinate={{
-              latitude:latitude,
-              longitude:longitude
+              latitude:marker?.location?.coordinates[1],
+              longitude:marker?.location?.coordinates[0]
             
             }}
             
-            onDragEnd={
-              (e) => alert(JSON.stringify(e.nativeEvent.coordinate))
-            }
-            // title={'Test Marker'}
-            // description={'This is a description of the marker'}
+            // onDragEnd={
+            //   (e) => alert(JSON.stringify(e.nativeEvent.coordinate))
+            // }
+            title={marker?.placeName}
+            // description={marker?.placeName}
           />
+           </View>
+            )}
         </MapView>
       </View>
   );

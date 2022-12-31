@@ -2,8 +2,13 @@ import React from 'react';
 import {View, StyleSheet, StatusBar, Image, Text, Platform, TouchableOpacity, ImageBackground} from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/SimpleLineIcons'
+import { useSelector } from 'react-redux';
 
-export const PhotoDisplayScreen = ({navigation}) => {
+export const PhotoDisplayScreen = ({navigation,route}) => {
+
+
+  const photoDetails=useSelector(state=>state.particularPlace.photoDetails)
+  console.log("^^^^^",photoDetails)
   return (
     <View style={styles.container}>
       <StatusBar
@@ -11,7 +16,7 @@ export const PhotoDisplayScreen = ({navigation}) => {
         hidden={false}
         backgroundColor="#310D20"
       />      
-        <ImageBackground source={require('../assets/images/profiledummy.png')} resizeMode='cover' style={{flex:1}}>
+        <ImageBackground source={{uri:route.params}} resizeMode='cover' style={{flex:1}}>
       <ScrollView >
       <View style={styles.header}>
 
@@ -23,17 +28,17 @@ export const PhotoDisplayScreen = ({navigation}) => {
         />
         </TouchableOpacity>
      
-            <Text style={styles.text}>Attill</Text>
+            <Text style={styles.text}>ATTILL</Text>
         <TouchableOpacity>
         <Image source={require('../assets/images/share.png')} style={{alignSelf:'center',marginRight:20,color:'white', marginTop: Platform.OS === 'ios' ? 55 :40}}/>
         </TouchableOpacity>
       </View>
 
       <View style={styles.btmview}>
-        <Image source={require('../assets/images/profiledummy.png')} style={styles.btmimage}/>
+        <Image source={{uri:photoDetails.data?.userId.profilePic.url}} style={styles.btmimage}/>
         <View style={{marginTop:10}}>
-            <Text style={styles.text}>Saish Balu</Text>
-            <Text style={styles.text2}>Added May 12,2010</Text>
+            <Text style={styles.text}>{photoDetails.data?.userId.name}</Text>
+            <Text style={styles.text2}>Added {photoDetails.data?.photos.dates}</Text>
         </View>
       </View>
       </ScrollView>

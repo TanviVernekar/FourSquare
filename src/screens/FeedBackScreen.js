@@ -18,6 +18,8 @@ import {
 import axios from 'axios';
 import {Button2} from '../components/Buttons';
 import {KeyboardAwareView} from 'react-native-keyboard-aware-view';
+import { feedBackApi } from '../auth/Auth';
+import { useSelector } from 'react-redux';
 
 export const FeedBackScreen = ({navigation}) => {
   const isPortrait = () => {
@@ -32,9 +34,21 @@ export const FeedBackScreen = ({navigation}) => {
   }, []);
 
   const [text, setText] = useState('');
-const handleSubmit = () => {
+const handleSubmit = async () => {
   console.log(text)
+  const obj={
+    feedbackText:text,
+
+  }
+  const res = await feedBackApi(token,obj);
+  if(res){
+    navigation.navigate('HomeStack')
+  }
+  // console.log(res)
 }
+
+
+const token = useSelector(state => state.userDetails.token);
 
   return (
     <View style={styles.container}>

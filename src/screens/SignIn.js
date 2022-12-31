@@ -40,7 +40,7 @@ export const SignIn = ({navigation}) => {
     const obj = {
      email:route.params.email
     };
-    console.log("weuhfwh")
+   
     
       try {
         const response = await axios.get(
@@ -121,8 +121,9 @@ export const SignIn = ({navigation}) => {
                   // }
                  console.log(response)
                   if(response){
-                    console.log("///",response.headers.authorization)
+                  
                     const token = response.headers.authorization
+                    console.log(token)
                     dispatch(setToken(token))
                     navigation.navigate('DrawerNav')
                     console.log('logged in')

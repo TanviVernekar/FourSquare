@@ -1,4 +1,5 @@
-import React, {useState} from 'react';
+import {getActionFromState} from '@react-navigation/native';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   StyleSheet,
@@ -11,31 +12,74 @@ import {
 } from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/SimpleLineIcons';
+import {useDispatch, useSelector} from 'react-redux';
+import {
+  addFavoriteApi,
+  particularPlaceApi,
+  searchGetFavorite,
+  searchPlace,
+} from '../auth/Auth';
+import {ListComponent} from '../components/ListComponent';
+import {
+  setFavouriteList,
+  setFavouriteListDelete,
+  setSearchFavList,
+} from '../redux/ReduxPersist/FavouriteSlice';
+import {setParticularPlace} from '../redux/ReduxPersist/ParticularPlace';
 
-const listdata = [
-  {
-    id: 1,
-    name: 'Attil',
-    type: 'Indian',
-    distance: '4.5Km',
-    address: 'manipal',
-  },
-  {
-    id: 2,
-    name: 'Attil',
-    type: 'Indian',
-    distance: '4.5Km',
-    address: 'manipal',
-  },
-  {
-    id: 3,
-    name: 'Attil',
-    type: 'Indian',
-    distance: '4.5Km',
-    address: 'manipal',
-  },
-];
 export const FavouriteScreen = ({navigation}) => {
+  const token = useSelector(state => state.userDetails.token);
+  // console.log("fav",token)
+  const favouriteList = useSelector(state => state.favouriteSlice.favList);
+  let latitude = useSelector(state => state.userDetails.latitude);
+  let longitude = useSelector(state => state.userDetails.longitude);
+  console.log('///', favouriteList);
+  const [list, setList] = useState(false);
+
+  const searchfavList = useSelector(
+    state => state.favouriteSlice.searchFavList,
+  );
+  // console.log('****', searchfavList);
+
+  const dispatch = useDispatch();
+  useEffect(() => {
+    getFavorite();
+  }, []);
+
+  const getFavorite = async () => {
+    searchParam = '';
+    // latitude = '12.915605';
+    // longitude = '74.855965';
+
+    const res = await searchGetFavorite(
+      token,
+      searchParam,
+      latitude,
+      longitude,
+    );
+    if (res) {
+      dispatch(setFavouriteList(res));
+      // console.log('---', res);
+    }
+  };
+
+  const searchFavorite = async texts => {
+    searchParam = texts;
+    latitude = '12.915605';
+    longitude = '74.855965';
+    const data = await searchGetFavorite(
+      token,
+      searchParam,
+      latitude,
+      longitude,
+    );
+    // console.log("+++",data)
+    // dispatch(setSearchFavList(data));
+    if (data) {
+      dispatch(setSearchFavList(data));
+    }
+  };
+
   const [text, setText] = useState();
   const [changeText, setChangeText] = useState(null);
   return (
@@ -84,68 +128,181 @@ export const FavouriteScreen = ({navigation}) => {
                 name="Search"
                 placeholder="Search"
                 value={text}
-                onChangeText={text => {
-                  setChangeText(text);
+                onChangeText={texts => {
+                  setText(texts);
+                  searchFavorite(texts);
+                  setList(true);
                 }}
                 placeholderTextColor="#CACACA"
                 // onFocus={() => {
-                //   setSearch(true);
-                //   setNearyou(false);
-                //   setNearyoutext('');
-                //   setFilter(false);
+                //   setText('');
                 // }}
                 style={styles.text2}></TextInput>
             </View>
           </View>
         </View>
 
-        {listdata.map(item => (
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate('DetailsScreen');
-            }}>
-            <View style={styles.listContainer}>
-              <Image
-                source={require('../assets/images/hotel.png')}
-                style={styles.image}
-                resizeMode="cover"
-              />
-              <View style={{marginLeft: 12}}>
-                <Text style={styles.name}>{item.name}</Text>
-                <View style={styles.rating}>
-                  <Text
-                    style={{
-                      fontSize: 14,
-                      color: 'white',
-                      fontFamily: 'Avenir Book',
+        {!text ? (
+          <>
+            {favouriteList ? (
+              <>
+                {favouriteList?.map(item => (
+                  <TouchableOpacity
+                    onPress={async () => {
+                      id = item?._id;
+                      console.log(id);
+                      const res = await particularPlaceApi(token, id);
+                      // console.log('^&^&^&^&',res)
+                      if (res) {
+                        dispatch(setParticularPlace(res)),
+                          navigation.navigate('DetailsScreen');
+                      }
                     }}>
-                    6.5
-                  </Text>
-                </View>
-                <View style={{flexDirection: 'row'}}>
-                  <Text style={styles.text}>{item.type} </Text>
-                  <Text style={styles.text}>•₹₹₹₹ </Text>
-                  <Text style={styles.text}>6.7km</Text>
-                </View>
-                <Text style={styles.text}>{item.address}</Text>
-              </View>
-              <View
-                style={{
-                  position: 'absolute',
-                  top: 7,
-                  flexDirection: 'row',
-                  right: 10,
-                }}>
-                <TouchableOpacity>
-                  <Image
-                    source={require('../assets/images/close_icon.png')}
-                    style={{height: 15, width: 15, tintColor: '#8D8D8D'}}
-                  />
-                </TouchableOpacity>
-              </View>
-            </View>
-          </TouchableOpacity>
-        ))}
+                    <View style={styles.listContainer}>
+                      <Image
+                        source={{uri: item?.placePic.url}}
+                        style={styles.image}
+                        resizeMode="cover"
+                      />
+                      <View style={{marginLeft: 12}}>
+                        <Text style={styles.name}>{item?.placeName}</Text>
+                        <View style={styles.rating}>
+                          <Text
+                            style={{
+                              fontSize: 14,
+                              color: 'white',
+                              fontFamily: 'Avenir Book',
+                            }}>
+                            {item?.overallRating}
+                          </Text>
+                        </View>
+                        <View style={{flexDirection: 'row'}}>
+                          <Text style={styles.text}>{item?.description} </Text>
+                          <Text style={styles.text}>•₹₹₹₹ </Text>
+                          <Text style={styles.text}>
+                            {item?.dist.calculated}km
+                          </Text>
+                        </View>
+                        <Text style={styles.text}>{item?.address}</Text>
+                      </View>
+                      <View
+                        style={{
+                          position: 'absolute',
+                          top: 7,
+                          flexDirection: 'row',
+                          right: 10,
+                        }}>
+                        <TouchableOpacity
+                          onPress={async () => {
+                            placeId = item?._id
+                            const data = await addFavoriteApi(token, placeId);
+                            // console.log("hellooooo")
+                            console.log('added', data);
+
+                            searchParam = '';
+                            // latitude = latitude;
+                            // longitude = longitude;
+
+                            const res = await searchGetFavorite(
+                              token,
+                              searchParam,
+                              latitude,
+                              longitude,
+                            );
+                            console.log('added2', res);
+                            if (res) {
+                              const tttt = dispatch(setFavouriteList(res));
+                              // console.log('dis added', tttt);
+                            }
+                          }}>
+                          <Image
+                            source={require('../assets/images/close_icon.png')}
+                            style={{
+                              height: 15,
+                              width: 15,
+                              tintColor: '#8D8D8D',
+                            }}
+                          />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </>
+            ) : (
+              <></>
+            )}
+          </>
+        ) : (
+          <>
+            {searchfavList ? (
+              <>
+                {searchfavList?.map(item => (
+                  <TouchableOpacity
+                    onPress={async () => {
+                      id = item?._id;
+                      console.log(id);
+                      const res = await particularPlaceApi(token, id);
+                      console.log('^&^&^&^&', res);
+                      if (res) {
+                        dispatch(setParticularPlace(res)),
+                          navigation.navigate('DetailsScreen');
+                      }
+                    }}>
+                    <View style={styles.listContainer}>
+                      <Image
+                        source={{uri: item?.placePic.url}}
+                        style={styles.image}
+                        resizeMode="cover"
+                      />
+                      <View style={{marginLeft: 12}}>
+                        <Text style={styles.name}>{item?.placeName}</Text>
+                        <View style={styles.rating}>
+                          <Text
+                            style={{
+                              fontSize: 14,
+                              color: 'white',
+                              fontFamily: 'Avenir Book',
+                            }}>
+                            {item?.overallRating}
+                          </Text>
+                        </View>
+                        <View style={{flexDirection: 'row'}}>
+                          <Text style={styles.text}>{item?.description} </Text>
+                          <Text style={styles.text}>•₹₹₹₹ </Text>
+                          <Text style={styles.text}>
+                            {item?.dist.calculated}km
+                          </Text>
+                        </View>
+                        <Text style={styles.text}>{item?.address}</Text>
+                      </View>
+                      <View
+                        style={{
+                          position: 'absolute',
+                          top: 7,
+                          flexDirection: 'row',
+                          right: 10,
+                        }}>
+                        <TouchableOpacity>
+                          <Image
+                            source={require('../assets/images/close_icon.png')}
+                            style={{
+                              height: 15,
+                              width: 15,
+                              tintColor: '#8D8D8D',
+                            }}
+                          />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </>
+            ) : (
+              <></>
+            )}
+          </>
+        )}
       </ScrollView>
     </View>
   );

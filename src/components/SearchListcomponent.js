@@ -1,6 +1,6 @@
 import {iteratorSymbol} from 'immer/dist/internal';
 import React, {useState} from 'react';
-import {View, StyleSheet, Text, Image, TouchableOpacity} from 'react-native';
+import {View, StyleSheet, Text, Image, TouchableOpacity, useWindowDimensions} from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import {useDispatch, useSelector} from 'react-redux';
 import {
@@ -11,7 +11,7 @@ import {
 import {setFavouriteList} from '../redux/ReduxPersist/FavouriteSlice';
 import {setParticularPlace} from '../redux/ReduxPersist/ParticularPlace';
 
-export const ListComponent = ({
+export const SearchListComponent = ({
   navigation,
   placeName,
   overallrating,
@@ -22,6 +22,10 @@ export const ListComponent = ({
   id,
   favourite,
 }) => {
+
+
+  const {width}=useWindowDimensions()
+
   const dispatch = useDispatch();
   const rating = parseFloat(overallrating).toFixed(1);
   const distance = parseFloat(dist).toFixed(1);
@@ -29,21 +33,22 @@ export const ListComponent = ({
   // const [favourite,setFavourite]=useState(true)
 
   const token = useSelector(state => state.userDetails.token);
-  let latitude = useSelector(state => state.userDetails.latitude);
-  let longitude = useSelector(state => state.userDetails.longitude);
+  const latitude = useSelector(state => state.userDetails.latitude);
+  const longitude = useSelector(state => state.userDetails.longitude);
+  
 
   return (
     <View style={styles.mainContainer}>
       <TouchableOpacity
         onPress={async () => {
           const res = await particularPlaceApi(token, id);
-          // console.log(res);
-          if (res?.status) {
-            dispatch(setParticularPlace(res));
-            navigation.navigate('DetailsScreen', favourite);
+
+          if (res) {
+            dispatch(setParticularPlace(res)),
+              navigation.navigate('DetailsScreen', favourite);
           }
         }}>
-        <View style={styles.listContainer}>
+        <View style={[styles.listContainer,{width:width-12}]}>
           <View>
             <Image source={{uri: placePic}} style={styles.image} />
           </View>
@@ -89,15 +94,15 @@ export const ListComponent = ({
               <>
                 <TouchableOpacity
                   onPress={async () => {
-                    let placeId = id;
-
+                    alert(id)
+                    placeId = id;
                     const data = await addFavoriteApi(token, placeId);
                     // console.log("hellooooo")
                     console.log('added', data);
 
                     searchParam = '';
-                    // latitude = latitude;
-                    // longitude = longitude;
+                    // latitude = '12.915605';
+                    // longitude = '74.855965';
 
                     const res = await searchGetFavorite(
                       token,
@@ -107,9 +112,10 @@ export const ListComponent = ({
                     );
                     console.log('added2', res);
                     if (res) {
-                      const tttt = dispatch(setFavouriteList(res));
+                      const tttt=dispatch(setFavouriteList(res));
                       // console.log('dis added', tttt);
                     }
+
 
                     // searchParam = texts;
                     // latitude = '12.915605';
@@ -136,12 +142,12 @@ export const ListComponent = ({
               <>
                 <TouchableOpacity
                   onPress={async () => {
-                    let placeId = id;
-
+                    alert(id)
+                    placeId = id;
                     const data = await addFavoriteApi(token, placeId);
                     // console.log('removed', data);
                     searchParam = '';
-                    // latitude = latitude;
+                    // latitude = '12.915605';
                     // longitude = '74.855965';
 
                     const res = await searchGetFavorite(
@@ -152,7 +158,8 @@ export const ListComponent = ({
                     );
                     console.log('removed2', res);
                     if (res) {
-                      dispatch(setFavouriteList(res));
+                     const uuuu= dispatch(setFavouriteList(res));
+                      // console.log('dis rem', uuuu);
                     }
                   }}>
                   <Image
@@ -177,10 +184,10 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     backgroundColor: '#FFFFFF',
-    marginHorizontal: 0,
+  //  marginLeft:5,
     // borderRadius: 5,
     height: 130,
-
+    // borderWidth:1,
     shadowColor: 'grey',
     shadowOffset: {
       width: 1,
@@ -191,10 +198,15 @@ const styles = StyleSheet.create({
     padding: 10,
     elevation: 5,
     marginTop: 6,
-
+    // width:"100%",
     flexDirection: 'row',
     // borderWidth:1,
-    marginHorizontal: 5,
+    // marginRight:50
+    marginHorizontal:5,
+    // justifyContent:'center',
+    // alignItems:'center'
+    alignSelf:'center'
+    
   },
   image: {
     width: 120,

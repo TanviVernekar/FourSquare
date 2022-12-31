@@ -25,12 +25,12 @@ const data = [
     address: 'manipal',
   },
 ];
-export const ReviewComponent = () => {
+export const ReviewComponent = ({public_id}) => {
   return (
     <View style={styles.mainContainer}>
       <View style={styles.listContainer}>
         <Image
-          source={require('../assets/images/profiledummy.png')}
+          source={{uri:public_id}}
           style={styles.image}
           resizeMode="cover"
         />

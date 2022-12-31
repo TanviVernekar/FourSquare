@@ -11,12 +11,32 @@ import {Modal} from 'react-native';
 import {setRatingState} from '../redux/ReduxPersist/RatingSlice';
 import {useDispatch, useSelector} from 'react-redux';
 import {Rating, AirbnbRating} from 'react-native-ratings';
+import { ratingApi } from '../auth/Auth';
 
 export const ModalComponent = () => {
   const dispatch = useDispatch();
-  const ratingState = useSelector(state => state.ratingState.state);
 
+  const [ratingcount,setRatingcount] =useState()
+
+
+
+  const ratingState = useSelector(state => state.ratingState.state);
+  
+  const token = useSelector(state => state.userDetails.token);
+
+  const details = useSelector(state => state.particularPlace.details);
+  const id = details?.data?.placeDetails._id;
+  const rating = details?.data?.overallRating.toFixed(1);
   const STAR_IMAGE = require('../assets/images/rating_icon_selected.png');
+
+
+  // const handleSubmit= async(ratingCount)=>{
+  //     // const res = await ratingApi(token,AirbnbRating)
+  //     // console.log(res)
+  //     console.log(ratingCount)
+  // }
+
+
   return (
     <Modal
       animationType="fade"
@@ -70,7 +90,7 @@ export const ModalComponent = () => {
               marginTop: 60,
             }}>
             <Text style={styles.overall}>Overall Rating</Text>
-            <Text style={styles.rating}>4.5</Text>
+            <Text style={styles.rating}>{rating}</Text>
             <Text
               style={{
                 textAlign: 'center',
@@ -82,16 +102,36 @@ export const ModalComponent = () => {
               }}>
               How would you rate your experience?
             </Text>
-
-            <Rating
+            
+            <AirbnbRating
               ratingImage={STAR_IMAGE}
               ratingColor="#3498db"
               ratingCount={5}
-              imageSize={25}
-              style={{}}
+              defaultRating={0}
+              reviews={0}
+              size={25}
+              onFinishRating={ratingcount=>{
+                
+                setRatingcount(ratingcount)
+              console.log(ratingcount)}}
             />
           </View>
-          <TouchableOpacity>
+          <TouchableOpacity
+          onPress={async()=>{
+            const body={
+              placeId:id,
+              overallRating:ratingcount
+            }
+            const res = await ratingApi(token,body)
+            console.log(res)
+            // if (res.messag == "This user has already given rating") {
+            //   Toast.show('This user has already given rating', Toast.SHORT);
+            //   console.log(error);
+            // }
+            dispatch(setRatingState())
+          }}
+          
+          >
             <View style={styles.submit}>
               <Text
                 style={{
@@ -148,6 +188,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     // bottom: 0,
     width: '100%',
-    marginTop: 70,
+    marginTop: 20,
   },
 });
