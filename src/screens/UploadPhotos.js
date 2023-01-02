@@ -1,4 +1,4 @@
-import {Formik} from 'formik';
+import {Formik, isEmptyArray} from 'formik';
 import React, {useEffect, useState} from 'react';
 
 import {
@@ -10,40 +10,29 @@ import {
   Image,
   StyleSheet,
   TouchableOpacity,
-  Dimensions,
-  TextInput,
   ScrollView,
 } from 'react-native';
 
-import * as yup from 'yup';
 import axios from 'axios';
-import {Button2, Buttons} from '../components/Buttons';
+// import {ButtonComponen2, ButtonComponen4} from '../components/Button';
 import {KeyboardAwareView} from 'react-native-keyboard-aware-view';
 import ImagePicker from 'react-native-image-crop-picker';
-import { addReviewApi } from '../auth/Auth';
-import { useSelector } from 'react-redux';
+// import { getPhotosApi, uploadPhotosApi } from '../authorization/Auth';
+import { useDispatch, useSelector } from 'react-redux';
+import { Button2, Buttons } from '../components/Buttons';
+import { getAllPhotos, uploadPhotos } from '../auth/Auth';
+// import { setRefreshToken, setToken } from '../redux/reduxPersist/UserDetailSlice';
+// import { setFavouriteList } from '../redux/reduxPersist/FavouriteSlice';
+// import { setphotos } from '../redux/reduxPersist/HotelDetailSlice';
 
-export const AddReviewScreen = ({navigation}) => {
-
-
-
-  const token = useSelector(state => state.userDetails.token);
-  const details = useSelector(state => state.particularPlace.details);
-  const id = details.data?.placeDetails._id;
-
-  const isPortrait = () => {
-    const dim = Dimensions.get('screen');
-    return dim.height >= dim.width;
-  };
-  const [portrait, setPortrait] = useState(true);
-  useEffect(() => {
-    Dimensions.addEventListener('change', () => {
-      setPortrait(isPortrait());
-    });
-  }, []);
-
-  const [text, setText] = useState('');
-
+export const UploadPhotos = ({navigation,route}) => {
+const dispatch = useDispatch();
+let placeId = route.params
+// console.log(id)
+const [loading,setLaoding] = useState(false)
+const token = useSelector(state => state.userDetails.token);
+// const refreshToken = useSelector(state => state.userDetail.refreshToken);
+// const [apiCallState,setApiCAllState] = useState(false)
 
   const createFromData = obj => {
     let formData = new FormData();
@@ -73,60 +62,79 @@ export const AddReviewScreen = ({navigation}) => {
     return formData;
   };
 
-
-
-
-  const handleSubmit = async()=>{
+  const handleSubmit = async () => {
+    setLaoding(true)
     let body = '';
-    if(img){
-      body={
-        placeId:id,
-        reviewText:text,
-        image:image,
-      };
-    }else{
-      body={
-        placeId:id,
-        reviewText:text,
-      };
+    body = {
+      placeId:placeId,
+      image: image,
+    };
+  const objBody = createFromData(body);
+    console.log(token);
+    const data = await uploadPhotos(token, objBody);
+
+
+    // if (data) {
+    //   if (Object.keys(data)[0] === 'newToken') {
+    //     dispatch(setToken(data.newToken));
+    //     setLaoding(false)
+    //   } else if (Object.keys(data)[0] === 'errorMessage') {
+    //     dispatch(setToken());
+    //     // dispatch(setRefreshToken());
+    //     dispatch(setFavouriteList());
+    //     // setLaoding(false)
+    //     Toast.showWithGravity(
+    //       'Login to Upload Photos',
+    //       Toast.SHORT,
+    //       Toast.CENTER,
+    //     );
+    //   } else {
+    //     // setApiCAllState(true)
+    //     // setLaoding(false)
+    //   }
+    // } else {
+    // //   dispatch(setFavouriteList());
+    // //   setLaoding(false)
+    // }
+
+    if(data){
+        navigation.goBack()
     }
-    const objBody = createFromData(body)
-    console.log(objBody)
-    const res = await addReviewApi(token,objBody)
-      navigation.navigate('DetailsScreen')
-  }
+
+  };
 
 
   const [photoState, setPhotoState] = useState('false');
   useEffect(() => {}, [photoState]);
   const [img, setImg] = useState([]);
-  console.log(img);
-  const [image, setImage] = useState([]);
+  console.log(img)
+  const [image,setImage] = useState([]);
+  
   const changeProfileImageFromLibrary = () => {
-    setPhotoState(false)
+    setPhotoState(false);
     ImagePicker.openPicker({
       width: 110,
       height: 110,
       cropping: true,
     }).then(photo => {
-      // setImage(img.path);
       img.push(photo.path);
-      const {filename, mime, path} = photo;
+      const {filename, mime, path} =photo;
       image.push({filename, mime, path});
-      // setProfilePhoto({filename, mime, path});
       setPhotoState(true);
     });
   };
+  console.log(image)
+
   // const changeProfileImageFromCamera = () => {
   //   ImagePicker.openCamera({
   //     width: 110,
   //     height: 110,
   //     cropping: true,
-  //   }).then(img => {
-  //     setImage(img.path);
-  //     const {filename, mime, path} = img;
-  //     setProfilePhoto({filename, mime, path});
-
+  //   }).then(photo => {
+  //     img.push(photo.path);
+  //     const {filename, mime, path} =photo;
+  //     image.push({filename, mime, path});
+  //     setPhotoState(true);
   //   });
   // };
   return (
@@ -141,9 +149,12 @@ export const AddReviewScreen = ({navigation}) => {
               <View style={styles.headerView}>
                 <TouchableOpacity
                   style={styles.backIconPress}
-                  onPress={() => {
+                  onPress={ () => {
+                    
+
                     navigation.goBack();
-                  }}>
+                  }}
+                >
                   <Image
                     source={require('../assets/images/back_icon.png')}
                     style={styles.backIconStyle}
@@ -151,25 +162,14 @@ export const AddReviewScreen = ({navigation}) => {
                 </TouchableOpacity>
                 <View
                   style={{
-                    marginRight: '42%',
+                    // marginRight: '42%',
                   }}>
-                  <Text style={styles.feedbackText}>Add Review</Text>
+                  <Text style={styles.feedbackText}>Upload Photo</Text>
                 </View>
               </View>
             </View>
 
             <View style={{flex: 1, backgroundColor: 'white'}}>
-              <Text style={styles.feedbacktext2}>Write Review</Text>
-              <TextInput
-                style={styles.textInput}
-                multiline={true}
-                keyboardType="default"
-                name="feedback"
-                onChangeText={text => {
-                  setText(text);
-                }}
-                textAlignVertical="top"
-              />
 
               <View style={{marginTop: 10, marginHorizontal: 20}}>
                 <Text
@@ -178,7 +178,7 @@ export const AddReviewScreen = ({navigation}) => {
                     fontSize: 16,
                     color: '#351347',
                   }}>
-                  Add a photos to your review
+                  Add photos to Upload
                 </Text>
               </View>
               <View
@@ -188,14 +188,13 @@ export const AddReviewScreen = ({navigation}) => {
                   flexDirection: 'row',
                   display: 'flex',
                   flexWrap: 'wrap',
-                  // marginBottom: portrait ? 10 : 40,
                 }}>
-                {img ? (
+                 {img ? (
                   <>
                     {img?.map(item => (
-                      <View style={styles.addphotosIconView}>
+                      <View style={styles.addphotosIconView} key={item}>
                         <Image
-                          source={{uri:item}}
+                          source={{uri: item}}
                           style={styles.addphotosIcon}
                         />
                       </View>
@@ -205,10 +204,7 @@ export const AddReviewScreen = ({navigation}) => {
                   <></>
                 )}
                 <View style={styles.addphotosIconView}>
-                  <TouchableOpacity
-                    onPress={() => {
-                      changeProfileImageFromLibrary();
-                    }}>
+                  <TouchableOpacity onPress={()=>{changeProfileImageFromLibrary()}}>
                     <Image
                       source={require('../assets/images/aad_photo.png')}
                       style={styles.addphotosIcon}
@@ -218,13 +214,18 @@ export const AddReviewScreen = ({navigation}) => {
               </View>
             </View>
           </ScrollView>
-          <Button2
-            text="Submit"
-            disable={!text}
+          {loading ? (<>
+          <Buttons />
+          </>):(<>
+            <Button2
+            text={'Submit'}
+            disable={isEmptyArray(img)}
             onPress={() => {
               handleSubmit();
             }}
           />
+          </>)}
+          
         </View>
       </KeyboardAwareView>
     </View>
@@ -236,20 +237,26 @@ const styles = StyleSheet.create({
     // backgroundColor: '#310D20',
   },
   headerView: {
-    marginTop: Platform.OS === 'ios' ? 32 : 25,
-    flexDirection: 'row',
+    // marginTop: Platform.OS === 'ios' ? 50 : 40,
+    marginTop: Platform.OS === 'ios' ? 42 : 35,
+    marginBottom:13,
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent:'center',
+    alignSelf:'center',
     backgroundColor: '#310D20',
   },
   backIconPress: {
     paddingHorizontal: 15,
     paddingVertical: 15,
-    marginRight: 90,
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? -10 : -11,
+    flexDirection: 'row',
+    left: Platform.OS === 'ios' ? '-32%':'-31.5%',
   },
   backIconStyle: {
     height: 25,
     width: 25,
+    marginRight:90,
   },
   feedbackText: {
     fontFamily: 'Avenir Book',
@@ -279,19 +286,31 @@ const styles = StyleSheet.create({
   addphotosIconView: {
     marginRight: 17,
     marginVertical: 10,
-    borderRadius: 5,
-    overflow: 'hidden',
-  
+    borderRadius:5,
+    overflow:'hidden',
+    
   },
   addphotosIcon: {
     height: 70,
     width: 70,
+    // borderWidth:1
+
   },
   buttonView: {
-    // flex: 1,
     marginTop: 100,
     position: 'absolute',
     bottom: 0,
     width: '100%',
   },
 });
+
+
+// import React from 'react'
+// import { View } from 'react-native'
+
+// export const UploadPhotos=()=> {
+//   return (
+//     <View>
+//         </View>
+//   )
+// }

@@ -1,6 +1,6 @@
 import {iteratorSymbol} from 'immer/dist/internal';
 import React, {useState} from 'react';
-import {View, StyleSheet, Text, Image, TouchableOpacity} from 'react-native';
+import {View, StyleSheet, Text, Image, TouchableOpacity, Alert} from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import {useDispatch, useSelector} from 'react-redux';
 import {
@@ -32,6 +32,24 @@ export const ListComponent = ({
   let latitude = useSelector(state => state.userDetails.latitude);
   let longitude = useSelector(state => state.userDetails.longitude);
 
+  const createTwoButtonAlert = () =>
+    Alert.alert('', 'Please Login to Continue!', [
+      {
+        text: 'Login',
+        onPress: () => {
+          navigation.navigate('SignIn');
+        },
+      },
+      {
+        text: 'Cancel',
+        style: {fontWeight: 'bold'},
+        onPress: () => {
+         null
+
+        },
+      },
+    ]);
+
   return (
     <View style={styles.mainContainer}>
       <TouchableOpacity
@@ -49,7 +67,7 @@ export const ListComponent = ({
           </View>
 
           <View style={{width: '70%', marginLeft: 10}}>
-            <View style={{}}>
+            <View style={{height:40}}>
               <Text style={styles.name}>{placeName}</Text>
             </View>
             <View style={styles.rating}>
@@ -62,13 +80,13 @@ export const ListComponent = ({
                 {rating}
               </Text>
             </View>
-            <View style={{}}>
-              <View style={{flexDirection: 'row', marginTop: 60}}>
+           
+              <View style={{flexDirection: 'row', marginTop: 40}}>
                 <Text style={styles.text}>{description} </Text>
                 <Text style={styles.text}>• ₹ ₹ ₹ ₹ </Text>
                 <Text style={styles.text}>{distance}km</Text>
               </View>
-              <View>
+              <View >
                 <Text
                   style={styles.text}
                   ellipsizeMode="tail"
@@ -76,7 +94,7 @@ export const ListComponent = ({
                   {address}
                 </Text>
               </View>
-            </View>
+           
           </View>
           <View
             style={{
@@ -90,26 +108,29 @@ export const ListComponent = ({
                 <TouchableOpacity
                   onPress={async () => {
                     let placeId = id;
+                    if(token){
 
-                    const data = await addFavoriteApi(token, placeId);
-                    // console.log("hellooooo")
-                    console.log('added', data);
-
-                    searchParam = '';
-                    // latitude = latitude;
-                    // longitude = longitude;
-
-                    const res = await searchGetFavorite(
-                      token,
-                      searchParam,
-                      latitude,
-                      longitude,
-                    );
-                    console.log('added2', res);
-                    if (res) {
-                      const tttt = dispatch(setFavouriteList(res));
-                      // console.log('dis added', tttt);
+                      const data = await addFavoriteApi(token, placeId);
+                      // console.log("hellooooo")
+                      console.log('added', data);
+  
+                      searchParam = '';
+                      // latitude = latitude;
+                      // longitude = longitude;
+  
+                      const res = await searchGetFavorite(
+                        token,
+                        searchParam,
+                        latitude,
+                        longitude,
+                      );
+                      console.log('added2', res);
+                      if (res) {
+                        const tttt = dispatch(setFavouriteList(res));
+                        // console.log('dis added', tttt);
+                      }
                     }
+                    else(createTwoButtonAlert())
 
                     // searchParam = texts;
                     // latitude = '12.915605';
@@ -137,8 +158,8 @@ export const ListComponent = ({
                 <TouchableOpacity
                   onPress={async () => {
                     let placeId = id;
-
-                    const data = await addFavoriteApi(token, placeId);
+                    if(token){
+                      const data = await addFavoriteApi(token, placeId);
                     // console.log('removed', data);
                     searchParam = '';
                     // latitude = latitude;
@@ -154,7 +175,12 @@ export const ListComponent = ({
                     if (res) {
                       dispatch(setFavouriteList(res));
                     }
-                  }}>
+                    }else{
+                      createTwoButtonAlert()
+                    }
+                    
+                  }}
+                  >
                   <Image
                     source={require('../assets/images/favourite_star.png')}
                     style={{height: 20, width: 20}}
@@ -209,6 +235,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 18,
     marginTop: -5,
+    lineHeight:25
   },
   rating: {
     height: 23,
@@ -220,7 +247,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#76B947',
     marginBottom: 10,
 
-    marginTop: 55,
+    marginTop: 45,
     position: 'absolute',
   },
   text: {

@@ -9,6 +9,7 @@ export const PhotoDisplayScreen = ({navigation,route}) => {
 
   const photoDetails=useSelector(state=>state.particularPlace.photoDetails)
   console.log("^^^^^",photoDetails)
+  
   return (
     <View style={styles.container}>
       <StatusBar
@@ -35,10 +36,10 @@ export const PhotoDisplayScreen = ({navigation,route}) => {
       </View>
 
       <View style={styles.btmview}>
-        <Image source={{uri:photoDetails.data?.userId.profilePic.url}} style={styles.btmimage}/>
+        <Image source={{uri:photoDetails?.data?.userId?.profilePic.public_id}} style={styles.btmimage}/>
         <View style={{marginTop:10}}>
-            <Text style={styles.text}>{photoDetails.data?.userId.name}</Text>
-            <Text style={styles.text2}>Added {photoDetails.data?.photos.dates}</Text>
+            <Text style={styles.text}>{photoDetails?.data?.userId.name}</Text>
+            <Text style={styles.text2}>Added {photoDetails?.data?.photos[0]?.dates}</Text>
         </View>
       </View>
       </ScrollView>

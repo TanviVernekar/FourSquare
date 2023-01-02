@@ -1,4 +1,5 @@
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const nearmeApi = async (token, latitude, longitude) => {
   const options = {
@@ -132,9 +133,7 @@ export const getAllPhotos = async (token, id) => {
 
   try {
     const response = await axios.get(
-      // `https://new-project-henna.vercel.app/api/place/photo?placeId=${id}`,
-      `https://new-project-henna.vercel.app/api/place/photo?placeId=63a0390e5718b13af6e3771a`,
-
+      `https://new-project-henna.vercel.app/api/place/photo?placeId=${id}`,
       options,
     );
     if (response.data) {
@@ -146,7 +145,8 @@ export const getAllPhotos = async (token, id) => {
   }
 };
 
-export const getParticularPhotos = async (token, id) => {
+export const getParticularPhotos = async (token, PlaceId) => {
+  
   const options = {
     headers: {
       Authorization: token,
@@ -155,18 +155,40 @@ export const getParticularPhotos = async (token, id) => {
 
   try {
     const response = await axios.get(
-      `https://new-project-henna.vercel.app/api/place/get-Particular-Review-Photo?photoId=63a986d8f1d12e351ee67f4f`,
+      `https://new-project-henna.vercel.app/api/place/get-Particular-Review-Photo?photoId=${PlaceId}`,
 
       options,
     );
     if (response.data) {
-      // console.log("i am response",response.data)
+      console.log("i am response",response.data)
       return response.data;
     }
   } catch (error) {
     console.log(error.response.data);
   }
 };
+
+export const uploadPhotos = async (token, objBody) => {
+  try {
+    let res = await fetch(
+      'https://new-project-henna.vercel.app/api/place/upload-Multiple-Photos',
+      {
+        method: 'post',
+        body: objBody,
+        headers: {
+          Authorization: token,
+          'Content-Type': 'multipart/form-data',
+        },
+      },
+    );
+    const jsonResponse = await res.json();
+    console.log("8888",jsonResponse)
+    return res.status;
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 
 export const getReview = async (token, id) => {
   const options = {
@@ -276,8 +298,8 @@ export const addReviewApi = async (token, objBody) => {
       },
     );
     const jsonResponse = await res.json();
-    // console.log("8888",jsonResponse)
-    // return res.status;
+    console.log("8888",jsonResponse)
+    return res.status;
   } catch (err) {
     console.log(err);
   }
@@ -285,6 +307,7 @@ export const addReviewApi = async (token, objBody) => {
 
 //pending
 export const addFavoriteApi = async (token, placeId) => {
+  
   const body = {placeId};
   const options = {
     headers: {
@@ -292,19 +315,23 @@ export const addFavoriteApi = async (token, placeId) => {
     },
   };
 
-  try {
-    // console.info(body)
-    const response = await axios.post(
-      `https://new-project-henna.vercel.app/api/user/add-favorite`,
-      body,
-      options,
-    );
-    if (response.data) {
-      // console.log("!!!!",response.data)
-      return response.data;
+
+  if(token){
+
+    try {
+      // console.info(body)
+      const response = await axios.post(
+        `https://new-project-henna.vercel.app/api/user/add-favorite`,
+        body,
+        options,
+      );
+      if (response.data) {
+        // console.log("!!!!",response.data)
+        return response.data;
+      }
+    } catch (error) {
+      console.log('add fav', error.response.data);
     }
-  } catch (error) {
-    console.log('add fav', error.response.data);
   }
 };
 
@@ -314,7 +341,31 @@ export const searchGetFavorite = async (
   latitude,
   longitude,
 ) => {
-  console.log("Auth",token)
+  const options = {
+    headers: {
+      Authorization: token,
+    },
+  };
+  console.log("lll",token)
+  if(token){
+
+    try {
+      const response = await axios.get(
+        `https://new-project-henna.vercel.app/api/user/add-favorite?searchParam=${searchParam}&latitude=${latitude}&longitude=${longitude}`,
+        options,
+      );
+      if (response.data) {
+        // console.log("favo",response)
+        return response.data;
+      }
+    } catch (error) {
+      console.log('get fav', error);
+    }
+  }
+};
+
+
+export const favFilterApi = async (token, obj) => {
   const options = {
     headers: {
       Authorization: token,
@@ -322,16 +373,17 @@ export const searchGetFavorite = async (
   };
 
   try {
-    const response = await axios.get(
-      `https://new-project-henna.vercel.app/api/user/add-favorite?searchParam=${searchParam}&latitude=${latitude}&longitude=${longitude}`,
+    const response = await axios.post(
+      `https://new-project-henna.vercel.app/api/user/favorite-filter`,
+      obj,
       options,
     );
     if (response.data) {
-      // console.log("favo",response)
+      console.log("response!!!",response.data)
       return response.data;
     }
   } catch (error) {
-    console.log('get fav', error.response.data);
+    console.log(error.response.data);
   }
 };
 //search
@@ -402,7 +454,7 @@ export const filterApi = async (token, obj) => {
 };
 
 //profile
-export const ProfileApi = async token => {
+export const ProfileApi = async (token) => {
   const options = {
     headers: {
       Authorization: token,
@@ -438,6 +490,27 @@ export const aboutUs = async token => {
     if (response.data) {
       // console.log("auth",response.data)
       return response.data;
+    }
+  } catch (error) {
+    console.log(error.response);
+  }
+};
+
+export const logOutApi = async token => {
+  const options = {
+    headers: {
+      Authorization: token,
+    },
+  };
+
+  try {
+    const response = await axios.delete(
+      `https://new-project-henna.vercel.app/api/user/login`,
+      options,
+    );
+    if (response) {
+      console.log('||||', response);
+      return response;
     }
   } catch (error) {
     console.log(error.response);

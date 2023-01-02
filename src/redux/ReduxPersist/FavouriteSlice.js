@@ -5,6 +5,8 @@ export const FavouriteSlice = createSlice({
   initialState: {
     favList: [],
     searchFavList: [],
+    favfilterList:[],
+
   },
   reducers: {
     setFavouriteList: (state, action) => {
@@ -15,9 +17,12 @@ export const FavouriteSlice = createSlice({
     setSearchFavList: (state, action) => {
       state.searchFavList = action.payload;
     },
+    setFavFilter: (state, action) => {
+      state.favfilterList = action.payload;
+    },
   },
 });
 
-export const {setFavouriteList, setSearchFavList} = FavouriteSlice.actions;
+export const {setFavouriteList, setSearchFavList,setFavFilter} = FavouriteSlice.actions;
 
 export default FavouriteSlice.reducer;

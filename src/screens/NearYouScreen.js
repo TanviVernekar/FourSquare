@@ -116,6 +116,8 @@ export const NearYouScreen = ({navigation}) => {
         } else {
           console.log(res);
         }
+
+      
         searchParam = '';
         //  latitude = latitude;
         // longitude = longitude;

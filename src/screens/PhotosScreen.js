@@ -7,6 +7,7 @@ import {
   Text,
   Platform,
   TouchableOpacity,
+  Alert
 } from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/SimpleLineIcons';
@@ -22,8 +23,26 @@ export const PhotosScreen = ({navigation}) => {
 
   const details = useSelector(state => state.particularPlace.details);
   const photos = useSelector(state => state.particularPlace.photos);
+  const placeId= photos?.data?._id
+  console.log("777",photos)
   
+  const createTwoButtonAlert = () =>
+  Alert.alert('', 'Please Login to Continue!', [
+    {
+      text: 'Login',
+      onPress: () => {
+        navigation.navigate('SignIn');
+      },
+    },
+    {
+      text: 'Cancel',
+      style: {fontWeight: 'bold'},
+      onPress: () => {
+       null
 
+      },
+    },
+  ]);
   return (
     <View style={styles.container}>
       <StatusBar
@@ -40,38 +59,77 @@ export const PhotosScreen = ({navigation}) => {
             />
           </TouchableOpacity>
 
-          <Text style={styles.text}>{details.data?.placeDetails.placeName}</Text>
-          <TouchableOpacity>
-            <Image
-              source={require('../assets/images/aad_photo_iconn.png')}
-              style={{
-                alignSelf: 'center',
-                marginRight: 20,
-                color: 'white',
-                marginTop: Platform.OS === 'ios' ? 55 : 50,
-                height: 18,
-                width: 25,
-              }}
-            />
-          </TouchableOpacity>
+          <Text style={styles.text}>{details?.data?.placeDetails.placeName}</Text>
+          {token ? (
+               <TouchableOpacity
+          
+               onPress={()=>navigation.navigate('UploadPhotos',details?.data.placeDetails._id)}>
+                 <Image
+                   source={require('../assets/images/aad_photo_iconn.png')}
+                   style={{
+                     alignSelf: 'center',
+                     marginRight: 20,
+                     color: 'white',
+                     marginTop: Platform.OS === 'ios' ? 55 : 50,
+                     height: 18,
+                     width: 25,
+                   }}
+                 />
+               </TouchableOpacity>
+          ):(
+            <TouchableOpacity
+          
+            onPress={()=>createTwoButtonAlert()}>
+              <Image
+                source={require('../assets/images/aad_photo_iconn.png')}
+                style={{
+                  alignSelf: 'center',
+                  marginRight: 20,
+                  color: 'white',
+                  marginTop: Platform.OS === 'ios' ? 55 : 50,
+                  height: 18,
+                  width: 25,
+                }}
+              />
+            </TouchableOpacity>
+          )}
+         
         </View>
         {/* {list.map(item=>( */}
         <View style={{flexDirection: 'row', display: 'flex', flexWrap: 'wrap'}}>
-          {photos.data.map(item=>(
-                 <TouchableOpacity
+          {photos?.data?.photos?.map(item=>(
+          
+            <>
+            
+           
+                 {item?.picture?.url.map(item1=>(
+                  <>
+                { console.log(item)}
+                      <TouchableOpacity
                  onPress={async() => {
-                  const res = await getParticularPhotos(token)
-                  
+              
+
+                   let PlaceId=item._id
+                 console.log(PlaceId)
+                  const res = await getParticularPhotos(token,PlaceId)
+                 
+                  console.log(res)
                   if(res){
                     dispatch(setPhotoDetails(res))
-                    navigation.navigate('PhotoDisplayScreen',item)
+                    navigation.navigate('PhotoDisplayScreen',item1)
                   }
-                 }}>
-                 <Image
-                   source={{uri:item}}
-                   style={styles.image}
-                 />
-               </TouchableOpacity>
+                 }}
+                 > 
+                    <Image
+                    source={{uri:item1}}
+                    style={styles.image}
+                  />
+                       </TouchableOpacity>
+                       </>
+                 ))}
+              
+              </>
+          
           ))}
        
         </View>
@@ -83,7 +141,7 @@ export const PhotosScreen = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: 'black',
   },
   header: {
     height: Platform.OS === 'ios' ? 95 : 90,
@@ -110,7 +168,7 @@ const styles = StyleSheet.create({
   image: {
     height: 120,
     width: 120,
-    borderColor: 'black',
-    borderWidth: 4,
+   margin:3
+
   },
 });

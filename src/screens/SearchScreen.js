@@ -23,12 +23,16 @@ import {filterApi, getNearCity, nearmeApi, searchPlace} from '../auth/Auth';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   setFilterList,
+  setNearYouSearch,
   setSearchNear,
   setSearchTextList,
 } from '../redux/ReduxPersist/SearchSlice';
 import {SearchMapScreen} from './SearchMapScreen';
 
-export const SearchScreen = ({navigation}) => {
+export const SearchScreen = ({navigation,route}) => {
+
+  const filterHome=route.params
+  console.log(filterHome)
   const {width} = useWindowDimensions();
 
   const dispatch = useDispatch();
@@ -45,7 +49,7 @@ export const SearchScreen = ({navigation}) => {
   const [mapclick, setMapclick] = useState(false);
   const [mapnear, setMapnear] = useState(false);
 
-  const [filter, setFilter] = useState(false);
+  const [filter, setFilter] = useState(route?.params?.filterhome ? route.params.filterhome :false);
 
   const [filterState, setFilterState] = useState(false);
 
@@ -76,7 +80,8 @@ export const SearchScreen = ({navigation}) => {
 
   let [favourite, setFavourite] = useState();
 
-  let [currentLoc, setCurrentLoc] = useState();
+  let [currentLoc, setCurrentLoc] = useState(false);
+
   const [currentLocMap, setCurrentLocMap] = useState(false);
 
   const [Viewable, SetViewable] = React.useState([]);
@@ -101,6 +106,7 @@ export const SearchScreen = ({navigation}) => {
   let latitude = useSelector(state => state.userDetails.latitude);
   let longitude = useSelector(state => state.userDetails.longitude);
   const filteredList = useSelector(state => state.searchSlice.filterList);
+  const filterNearYou = useSelector(state=>state.searchSlice.nearyou)
   // console.log("90909090",filteredList)
 
   // console.log('()()iiii()()', searchTextList.data);
@@ -340,6 +346,7 @@ export const SearchScreen = ({navigation}) => {
                     setFilterState(false);
                     setMapFilter(false);
                     setCurrentLoc(false);
+                    setCurrentLocMap(false)
                   }}
                   placeholderTextColor="#CACACA"
                   onFocus={() => {
@@ -358,6 +365,7 @@ export const SearchScreen = ({navigation}) => {
                     setMapclick(false);
                     setFilterState(false);
                     setCurrentLoc(false);
+                    setCurrentLocMap(false)
                   }}
                   style={styles.text}></TextInput>
               </View>
@@ -552,6 +560,7 @@ export const SearchScreen = ({navigation}) => {
                     setNearyou(false);
                     setNearyoutext(false);
                     setFilterState(false);
+                    setCurrentLoc(false)
                   }}>
                   <Text style={styles.btntext}>Map view</Text>
                 </TouchableOpacity>
@@ -672,6 +681,10 @@ export const SearchScreen = ({navigation}) => {
                   setMapnear(true);
                   setNearyoutext(false);
                   setNearyou(false);
+                  setNearyoutext(false)
+                  setFilterState(false)
+                  setCurrentLoc(false)
+
                 }}>
                 <Text style={styles.btntext}>Map view</Text>
               </TouchableOpacity>
@@ -684,27 +697,33 @@ export const SearchScreen = ({navigation}) => {
                     <TouchableOpacity
                       onPress={async () => {
                         const res = await nearmeApi(token, latitude, longitude);
-                        // console.log('+++++', res.data.data);
-                        setCurrentLoc(res.data.data);
-                       currentLoc=res.data.data
+                        // console.log('+++++', res);
+                        dispatch(setNearYouSearch(res.data.data))
+
+                        setCurrentLoc(true);
+                     
                         // console.log("55555",currentLoc)
                         setCurrentLocMap(false);
                         setNearyou(false);
                         setNearyoutext(false);
                         setSearch(false);
                         setSearchText(false);
+                        
                       }}>
                       <Image
                         source={require('../assets/images/location_icon.png')}
                         style={styles.locimg}
                       />
-                      <Text style={styles.loctext}>
+                      <Text style={styles.loctext1}>
                         Use my current location
                       </Text>
                     </TouchableOpacity>
                   </View>
                 </TouchableOpacity>
-                <TouchableOpacity>
+                <TouchableOpacity
+                onPress={()=>{
+
+                }}>
                   <View style={styles.placeview}>
                     <Image
                       source={require('../assets/images/map_icon.png')}
@@ -785,7 +804,8 @@ export const SearchScreen = ({navigation}) => {
       nearyou == false &&
       nearyouText == false &&
       mapclick == false &&
-      filterState == false ? (
+      filterState == false
+      && currentLoc == false ? (
         <View style={{flex: 1}}>
           {/* <View > */}
 
@@ -1311,9 +1331,9 @@ export const SearchScreen = ({navigation}) => {
             ]}
             onPress={() => {
               setMapFilter(false);
-              // setSearchText(false);
-              // setSearch(true);
-              // setMapclick(false);
+              setSearchText(false);
+              setSearch(false);
+              setMapclick(false);
               setFilter(false);
               setFilterState(true);
             }}>
@@ -1328,7 +1348,7 @@ export const SearchScreen = ({navigation}) => {
         <View style={{flex: 1, borderWidth: 1}}>
           <View>
             <ScrollView>
-              {currentLoc?.map(item => (
+              {filterNearYou?.map(item => (
                 <TouchableOpacity
                   onPress={() => {
                     navigation.navigate('DetailsScreen');
@@ -1400,20 +1420,20 @@ export const SearchScreen = ({navigation}) => {
       nearyou == false &&
       nearyouText == false &&
       filterState == false  ? (
-        <View style={{flex: 1, backgroundColor: 'pink'}}>
+        <View style={{flex: 1}}>
           {/* <View > */}
 
-          {/* <SearchMapScreen
+          <SearchMapScreen
             latitude={Viewable[0]?.location?.coordinates[1]}
             longitude={Viewable[0]?.location?.coordinates[0]}
-            data={currentLoc}
+            data={filterNearYou}
 
             // refs={mapRef}
-          /> */}
+          />
 
           <View style={{height: 138, borderWidth: 1}}>
             <FlatList
-              data={currentLoc}
+              data={filterNearYou}
               keyExtractor={item => item?._id}
               horizontal
               pagingEnabled
@@ -1421,7 +1441,7 @@ export const SearchScreen = ({navigation}) => {
               ref={ref}
               onViewableItemsChanged={onViewRef.current}
               viewabilityConfig={viewConfigRef.current}
-              renderItem={renderItem}
+              renderItem={renderItems}
             />
           </View>
           {/* </View> */}
@@ -1445,6 +1465,8 @@ export const SearchScreen = ({navigation}) => {
               setFilterState(false);
               setCurrentLocMap(false);
               setCurrentLoc(true);
+              setNearyou(false)
+              setNearYouSearch(false)
             }}>
             <Text style={styles.btntext2}>List view</Text> 
           </TouchableOpacity>
@@ -1488,6 +1510,7 @@ const styles = StyleSheet.create({
     width: 18,
     tintColor: 'grey',
     opacity: 0.3,
+    marginRight:5
   },
   filter: {
     height: 26,
@@ -1504,6 +1527,7 @@ const styles = StyleSheet.create({
   search2: {
     height: 18,
     width: 18,
+    marginRight:7
   },
   searchheader: {
     height: 60,
@@ -1521,6 +1545,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 25,
     backgroundColor: 'white',
     marginBottom: 1,
+    // borderWidth:1,
+    // marginTop:10
   },
   placeimg: {
     height: 70,
@@ -1537,7 +1563,6 @@ const styles = StyleSheet.create({
   placeview2: {
     height: 80,
     flexDirection: 'row',
-
     paddingHorizontal: 25,
     backgroundColor: 'white',
     marginBottom: 1,
@@ -1550,10 +1575,11 @@ const styles = StyleSheet.create({
     marginLeft: 20,
   },
   locimg: {
-    // height: 30,
-    // width: 30,
+    height: 30,
+    width: 30,
     // alignSelf: 'center',
-    alignSelf: 'center',
+    // alignSelf: 'center',
+    marginTop:30
   },
   loctext: {
     fontFamily: 'Avenir Book',
@@ -1561,6 +1587,16 @@ const styles = StyleSheet.create({
     color: '#000000',
     alignSelf: 'center',
     marginLeft: 20,
+
+  },
+  loctext1: {
+    fontFamily: 'Avenir Book',
+    fontSize: 20,
+    color: '#000000',
+    alignSelf: 'center',
+    marginLeft: 50,
+    marginTop:-25
+    
   },
   listContainer: {
     backgroundColor: '#FFFFFF',

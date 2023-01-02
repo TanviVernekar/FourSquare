@@ -13,6 +13,7 @@ import { AboutUsScreen } from '../screens/AboutUsScreen';
 import { FavouriteScreen } from '../screens/FavouriteScreen';
 import { PhotosScreen } from '../screens/PhotosScreen';
 import { PhotoDisplayScreen } from '../screens/PhotoDisplayScreen';
+import { UploadPhotos } from '../screens/UploadPhotos';
 
 
 const Stack = createStackNavigator();
@@ -45,7 +46,7 @@ export const HomeStack=()=>{
           headerShown: false,
           cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
         }} />
-                 <Stack.Screen name="FilterScreen" component={FilterScreen} options={{
+                 <Stack.Screen name="UploadPhotos" component={UploadPhotos} options={{
           headerShown: false,
           cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
         }} />

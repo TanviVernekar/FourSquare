@@ -1,6 +1,6 @@
 import {iteratorSymbol} from 'immer/dist/internal';
 import React, {useState} from 'react';
-import {View, StyleSheet, Text, Image, TouchableOpacity, useWindowDimensions} from 'react-native';
+import {View, StyleSheet, Text, Image, TouchableOpacity, useWindowDimensions,Alert} from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import {useDispatch, useSelector} from 'react-redux';
 import {
@@ -36,6 +36,23 @@ export const SearchListComponent = ({
   const latitude = useSelector(state => state.userDetails.latitude);
   const longitude = useSelector(state => state.userDetails.longitude);
   
+  const createTwoButtonAlert = () =>
+    Alert.alert('', 'Please Login to Continue!', [
+      {
+        text: 'Login',
+        onPress: () => {
+          navigation.navigate('SignIn');
+        },
+      },
+      {
+        text: 'Cancel',
+        style: {fontWeight: 'bold'},
+        onPress: () => {
+         null
+
+        },
+      },
+    ]);
 
   return (
     <View style={styles.mainContainer}>
@@ -92,9 +109,10 @@ export const SearchListComponent = ({
             }}>
             {favourite ? (
               <>
-                <TouchableOpacity
+              {token?(
+                  <TouchableOpacity
                   onPress={async () => {
-                    alert(id)
+                   
                     placeId = id;
                     const data = await addFavoriteApi(token, placeId);
                     // console.log("hellooooo")
@@ -137,36 +155,62 @@ export const SearchListComponent = ({
                     style={{height: 20, width: 20}}
                   />
                 </TouchableOpacity>
-              </>
-            ) : (
-              <>
+              ):(
                 <TouchableOpacity
-                  onPress={async () => {
-                    alert(id)
-                    placeId = id;
-                    const data = await addFavoriteApi(token, placeId);
-                    // console.log('removed', data);
-                    searchParam = '';
-                    // latitude = '12.915605';
-                    // longitude = '74.855965';
-
-                    const res = await searchGetFavorite(
-                      token,
-                      searchParam,
-                      latitude,
-                      longitude,
-                    );
-                    console.log('removed2', res);
-                    if (res) {
-                     const uuuu= dispatch(setFavouriteList(res));
-                      // console.log('dis rem', uuuu);
-                    }
+                  onPress={() => {
+                  createTwoButtonAlert()
                   }}>
                   <Image
-                    source={require('../assets/images/favourite_star.png')}
+                    source={require('../assets/images/favourite_icon_selected.png')}
                     style={{height: 20, width: 20}}
                   />
                 </TouchableOpacity>
+              )}
+                
+              </>
+            ) : (
+              <>
+              {token?(
+                   <TouchableOpacity
+                   onPress={async () => {
+                   
+                     placeId = id;
+                     const data = await addFavoriteApi(token, placeId);
+                     // console.log('removed', data);
+                     searchParam = '';
+                     // latitude = '12.915605';
+                     // longitude = '74.855965';
+ 
+                     const res = await searchGetFavorite(
+                       token,
+                       searchParam,
+                       latitude,
+                       longitude,
+                     );
+                     console.log('removed2', res);
+                     if (res) {
+                      const uuuu= dispatch(setFavouriteList(res));
+                       // console.log('dis rem', uuuu);
+                     }
+                   }}>
+                   <Image
+                     source={require('../assets/images/favourite_star.png')}
+                     style={{height: 20, width: 20}}
+                   />
+                 </TouchableOpacity>
+              ):(
+                <TouchableOpacity
+                onPress={ () => {
+                createTwoButtonAlert()
+                  
+                }}>
+                <Image
+                  source={require('../assets/images/favourite_star.png')}
+                  style={{height: 20, width: 20}}
+                />
+              </TouchableOpacity>
+              )}
+             
               </>
             )}
           </View>

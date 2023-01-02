@@ -6,22 +6,28 @@ import {SafeAreaView, StyleSheet, View} from 'react-native';
 
 // Import Map and Marker
 import MapView, {Marker} from 'react-native-maps';
+import { useSelector } from 'react-redux';
+
+
 
 export const SearchMapScreen = ({latitude,longitude,refs,data}) => {
+console.log("sms",data)
 
-    console.log("mmmmm",latitude)
+  const latitudes = useSelector(state => state.userDetails.latitude);
+  const longitudes = useSelector(state => state.userDetails.longitude);
+
+    // console.log("mmmmm",latitude)
   return (
       <View style={styles.container}>
         <MapView
           style={styles.mapStyle}
-          ref={refs}
+          // ref={refs}
         region={{
           
-            latitude:13.379326,
-            longitude:74.740226,
+            latitude:latitude?latitude:latitudes,
+            longitude:longitude?longitude:longitudes,
             latitudeDelta:1,
             longitudeDelta:7,
-         
             
         }}
           customMapStyle={mapStyle}>

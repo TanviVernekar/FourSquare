@@ -7,6 +7,7 @@ import {
   Text,
   Platform,
   TouchableOpacity,
+  Alert
 } from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/SimpleLineIcons';
@@ -57,6 +58,23 @@ export const ReviewScreen = ({navigation}) => {
     currentDateTime(review.data?.review.date);
  
   }, []);
+  const createTwoButtonAlert = () =>
+  Alert.alert('', 'Please Login to Continue!', [
+    {
+      text: 'Login',
+      onPress: () => {
+        navigation.navigate('SignIn');
+      },
+    },
+    {
+      text: 'Cancel',
+      style: {fontWeight: 'bold'},
+      onPress: () => {
+       null
+
+      },
+    },
+  ]);
 
   return (
     <View style={styles.container}>
@@ -78,9 +96,27 @@ export const ReviewScreen = ({navigation}) => {
           </TouchableOpacity>
 
           <Text style={styles.text}>Atill</Text>
-          <TouchableOpacity
+          {token?(
+              <TouchableOpacity
+              onPress={() => {
+                navigation.navigate('AddReviewScreen');
+              }}>
+              <Image
+                source={require('../assets/images/add_review.png')}
+                style={{
+                  alignSelf: 'center',
+                  marginRight: 20,
+                  color: 'white',
+                  marginTop: Platform.OS === 'ios' ? 55 : 45,
+                  height: 25,
+                  width: 20,
+                }}
+              />
+            </TouchableOpacity>
+          ):(
+            <TouchableOpacity
             onPress={() => {
-              navigation.navigate('AddReviewScreen');
+              createTwoButtonAlert()
             }}>
             <Image
               source={require('../assets/images/add_review.png')}
@@ -94,15 +130,17 @@ export const ReviewScreen = ({navigation}) => {
               }}
             />
           </TouchableOpacity>
+          )}
+          
         </View>
 
-        {review.data?.review.map(item => (
+        {review?.data?.review.map(item => (
           <>
             <View style={styles.listContainer}>
-              {item?.userId.profilePic ? (
+              {item?.userId?.reviewPic ? (
                 <>
                 <Image
-                source={{uri:item?.userId.profilePic.url}}
+                source={{uri:item?.userId.reviewPic.url[0]}}
                 style={styles.image}
                 resizeMode="cover"
               />
@@ -116,11 +154,11 @@ export const ReviewScreen = ({navigation}) => {
               </>)}
             
               <View style={{marginLeft: 12, marginTop: 5}}>
-                <Text style={styles.name}>{item.userId.name}</Text>
+                <Text style={styles.name}>{item?.userId.name}</Text>
 
-                <View style={{width: '78%', marginTop: 3}}>
+                <View style={{width: '100%', marginTop: 3}}>
                   <Text style={styles.text}>
-                  {item.reviewText}
+                  {item?.reviewText}
                   </Text>
                 </View>
               </View>

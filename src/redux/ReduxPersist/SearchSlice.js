@@ -6,6 +6,9 @@ export const SearchSlice = createSlice({
     searchNear:null,
     searchTextList:null,
     filterList:null,
+    filterState:false,
+    nearyou:null,
+    
   },
   reducers: {
     setSearchNear: (state, action) => {
@@ -20,12 +23,18 @@ export const SearchSlice = createSlice({
       state.filterList = action.payload;
  
     },
-   
-   
+    setFilterState: (state, action) => {
+      state.filterState = false;
  
+    },
+    setNearYouSearch: (state, action) => {
+      state.nearyou = action.payload;
+ 
+    },
+   
   },
 });
 
-export const {setSearchNear,setSearchTextList,setFilterList} = SearchSlice.actions;
+export const {setSearchNear,setSearchTextList,setFilterList,setFilterState,setNearYouSearch} = SearchSlice.actions;
 
 export default SearchSlice.reducer;

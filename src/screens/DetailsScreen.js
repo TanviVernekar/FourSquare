@@ -8,6 +8,7 @@ import {
   Image,
   PermissionsAndroid,
   TouchableOpacity,
+  Alert
 } from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import {useDispatch, useSelector} from 'react-redux';
@@ -50,6 +51,23 @@ export const DetailsScreen = ({navigation, route}) => {
   const favouriteList = useSelector(state => state.favouriteSlice.favList);
 
   const STAR_IMAGE = require('../assets/images/rating_icon_selected.png');
+  const createTwoButtonAlert = () =>
+  Alert.alert('', 'Please Login to Continue!', [
+    {
+      text: 'Login',
+      onPress: () => {
+        navigation.navigate('SignIn');
+      },
+    },
+    {
+      text: 'Cancel',
+      style: {fontWeight: 'bold'},
+      onPress: () => {
+       null
+
+      },
+    },
+  ]);
 
   useEffect(() => {
     const requestLocationPermission = async () => {
@@ -139,9 +157,12 @@ export const DetailsScreen = ({navigation, route}) => {
                   style={styles.icon}
                 />
               </TouchableOpacity>
+              <View style={{height:90,width:'65%'}}>
+
               <Text style={styles.text}>
                 {details?.data?.placeDetails.placeName}
               </Text>
+              </View>
               <View style={{flexDirection: 'row'}}>
                 <TouchableOpacity>
                   <Image
@@ -154,25 +175,30 @@ export const DetailsScreen = ({navigation, route}) => {
                     <TouchableOpacity
                       onPress={async () => {
                         placeId = details?.data?.placeDetails._id;
-                        const data = await addFavoriteApi(token, placeId);
-                        // console.log("hellooooo")
-                        console.log('rem', data);
-                        alert('remmm', placeId);
-                        setFavourite(false);
+                        if(token){
 
-                        searchParam = '';
-                        // latitude = '12.915605';
-                        // longitude = '74.855965';
-
-                        const res = await searchGetFavorite(
-                          token,
-                          searchParam,
-                          latitude,
-                          longitude,
-                        );
-                        console.log('added2', res);
-                        if (res) {
-                          dispatch(setFavouriteList(res));
+                          const data = await addFavoriteApi(token, placeId);
+                          // console.log("hellooooo")
+                          console.log('rem', data);
+                          alert('remmm', placeId);
+                          setFavourite(false);
+  
+                          searchParam = '';
+                          // latitude = '12.915605';
+                          // longitude = '74.855965';
+  
+                          const res = await searchGetFavorite(
+                            token,
+                            searchParam,
+                            latitude,
+                            longitude,
+                          );
+                          console.log('added2', res);
+                          if (res) {
+                            dispatch(setFavouriteList(res));
+                          }
+                        }else{
+                          createTwoButtonAlert()
                         }
                       }}>
                       <Image
@@ -186,25 +212,30 @@ export const DetailsScreen = ({navigation, route}) => {
                     <TouchableOpacity
                       onPress={async () => {
                         placeId = details?.data?.placeDetails._id;
-                        const data = await addFavoriteApi(token, placeId);
-                        // console.log("hellooooo")
-                        alert('add', placeId);
-                        console.log('added', data);
-                        setFavourite(true);
+                        if(token){
 
-                        searchParam = '';
-                        // latitude = '12.915605';
-                        // longitude = '74.855965';
-
-                        const res = await searchGetFavorite(
-                          token,
-                          searchParam,
-                          latitude,
-                          longitude,
-                        );
-                        console.log('added2', res);
-                        if (res) {
-                          dispatch(setFavouriteList(res));
+                          const data = await addFavoriteApi(token, placeId);
+                          // console.log("hellooooo")
+                          alert('add', placeId);
+                          console.log('added', data);
+                          setFavourite(true);
+  
+                          searchParam = '';
+                          // latitude = '12.915605';
+                          // longitude = '74.855965';
+  
+                          const res = await searchGetFavorite(
+                            token,
+                            searchParam,
+                            latitude,
+                            longitude,
+                          );
+                          console.log('added2', res);
+                          if (res) {
+                            dispatch(setFavouriteList(res));
+                          }
+                        }else{
+                          createTwoButtonAlert()
                         }
                       }}>
                       <Image
@@ -238,6 +269,7 @@ export const DetailsScreen = ({navigation, route}) => {
                   ratingCount={5}
                   defaultRating={rating}
                   size={25}
+                  isDisabled={true}
 
                   // tintColor='transparent'
                 />
@@ -245,11 +277,25 @@ export const DetailsScreen = ({navigation, route}) => {
             </View>
           </ImageBackground>
           <View style={styles.middleContainer}>
-            <TouchableOpacity
+            {token?(
+                <TouchableOpacity
+                onPress={() => {
+                  {
+                    dispatch(setRatingState());
+                  }
+                }}>
+                <View>
+                  <Image
+                    source={require('../assets/images/rating_icon.png')}
+                    style={styles.middleIcon}
+                  />
+                  <Text style={styles.middletext}>Rating</Text>
+                </View>
+              </TouchableOpacity>
+            ):(
+              <TouchableOpacity
               onPress={() => {
-                {
-                  dispatch(setRatingState());
-                }
+                createTwoButtonAlert()
               }}>
               <View>
                 <Image
@@ -259,6 +305,8 @@ export const DetailsScreen = ({navigation, route}) => {
                 <Text style={styles.middletext}>Rating</Text>
               </View>
             </TouchableOpacity>
+            )}
+          
 
             <TouchableOpacity
               onPress={async () => {
@@ -281,23 +329,26 @@ export const DetailsScreen = ({navigation, route}) => {
               </View>
             </TouchableOpacity>
 
-            <TouchableOpacity
-              onPress={async () => {
-                const res = await getReview(token, id);
-                console.log('kkkk', res);
-                if (res) {
-                  dispatch(setReview(res));
-                  navigation.navigate('ReviewScreen');
-                }
-              }}>
-              <View>
-                <Image
-                  source={require('../assets/images/review_icon.png')}
-                  style={styles.middleIcon}
-                />
-                <Text style={styles.middletext}>Review</Text>
-              </View>
-            </TouchableOpacity>
+        
+               <TouchableOpacity
+               onPress={async () => {
+                 const res = await getReview(token, id);
+                 console.log('kkkk', res);
+                 if (res) {
+                   dispatch(setReview(res));
+                   navigation.navigate('ReviewScreen');
+                 }
+               }}>
+               <View>
+                 <Image
+                   source={require('../assets/images/review_icon.png')}
+                   style={styles.middleIcon}
+                 />
+                 <Text style={styles.middletext}>Review</Text>
+               </View>
+             </TouchableOpacity>
+           
+           
           </View>
           <View
             style={{
@@ -352,12 +403,22 @@ export const DetailsScreen = ({navigation, route}) => {
               </View>
             </LinearGradient>
           </View>
-          <Button2
+          {token ? (
+                <Button2
+                text="Add Review"
+                onPress={() => {
+                  navigation.navigate('AddReviewScreen');
+                }}
+              />
+          ):(
+            <Button2
             text="Add Review"
             onPress={() => {
-              navigation.navigate('AddReviewScreen');
+             createTwoButtonAlert()
             }}
           />
+          )}
+        
         </View>
       </ScrollView>
       <ModalComponent />
@@ -388,11 +449,12 @@ const styles = StyleSheet.create({
     // marginLeft: 30,
     // marginHorizontal: 80,
     textAlign: 'center',
-    width: '65%',
+    // width: '100%',
+   
   },
   textbtm: {
     marginHorizontal: 35,
-    marginTop: 115,
+    marginTop: 50,
   },
   btmtext: {
     textAlign: 'center',
@@ -400,6 +462,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#FFFFFF',
     lineHeight: 24,
+    height:65
   },
   middleContainer: {
     flexDirection: 'row',

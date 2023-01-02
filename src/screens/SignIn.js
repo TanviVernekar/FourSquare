@@ -119,11 +119,11 @@ export const SignIn = ({navigation}) => {
                   // } else {
                   //   setWarning(true);
                   // }
-                 console.log(response)
+                 console.log("<<<<>>>>>",response)
                   if(response){
                   
                     const token = response.headers.authorization
-                    console.log(token)
+                    // console.log(token.substring(8))
                     dispatch(setToken(token))
                     navigation.navigate('DrawerNav')
                     console.log('logged in')

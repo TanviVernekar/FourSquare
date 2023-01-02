@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useState} from 'react';
 import {
   View,
   StyleSheet,
@@ -8,11 +8,18 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
+import { useDispatch } from 'react-redux';
 import {TopTabsStack} from '../navigation/TopTabsStack';
+import { setFilterState } from '../redux/ReduxPersist/SearchSlice';
 import { MapScreen } from './MapScreen';
 
 
 export const HomeScreen = ({navigation}) => {
+
+
+
+  const [initialFilter,setInitialFilter]=useState(false)
+  const dispatch = useDispatch()
   return (
     <View style={styles.mainContainer}>
       <StatusBar
@@ -38,7 +45,9 @@ export const HomeScreen = ({navigation}) => {
               style={styles.logo}
             />
             <View style={{flexDirection: 'row'}}>
-              <TouchableOpacity onPress={()=>navigation.navigate('FilterScreen')}>
+              <TouchableOpacity onPress={()=>{
+                setInitialFilter(true)
+                navigation.navigate('SearchScreen',{filterhome:true})}}>
                 <Image
                   source={require('../assets/images/filter.png')}
                   style={styles.filter}
